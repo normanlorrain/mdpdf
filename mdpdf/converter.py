@@ -3,10 +3,6 @@ import fitz  # pymupdf
 
 from .elements import elements
 
-class Document:
-    def __init__(self):
-        pass
-
 
 parser = commonmark.Parser()
 
@@ -27,4 +23,3 @@ def convertMarkdown2Pdf(inputFileName, outputFileName):
     for node, entering in commonmark.node.NodeWalker(ast):
         if entering:
             elements[node.t](node.literal)
-            

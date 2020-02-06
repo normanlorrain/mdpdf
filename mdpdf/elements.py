@@ -1,7 +1,8 @@
 # Refer here: https://github.com/commonmark/commonmark.js
 
+
 def processText(literal):
-    print("Text:",literal)
+    print("Text:", literal)
 
 
 def processSoftbreak(literal):

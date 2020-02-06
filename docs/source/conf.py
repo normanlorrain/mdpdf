@@ -122,7 +122,7 @@ todo_include_todos = False
 # a list of builtin themes.
 
 # fmt: off
-  # noqa
+# noqa
 # fmt: on
 html_theme = "alabaster"
 
@@ -132,8 +132,8 @@ html_theme_options = {
     "github_repo": "Markdown to PDF",
 }
 # fmt: off
-  # noqa
-  # noqa
+# noqa
+# noqa
 # fmt: on
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -182,28 +182,14 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (
-        master_doc,
-        "mdpdf.tex",
-        "mdpdf Documentation",
-        "normanlorrain",
-        "manual",
-    )
+    (master_doc, "mdpdf.tex", "mdpdf Documentation", "normanlorrain", "manual",)
 ]
 
 # -- Options for manual page output ---------------------------------------
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [
-    (
-        master_doc,
-        "mdpdf",
-        "mdpdf Documentation",
-        [author],
-        1,
-    )
-]
+man_pages = [(master_doc, "mdpdf", "mdpdf Documentation", [author], 1,)]
 
 # -- Options for Texinfo output -------------------------------------------
 

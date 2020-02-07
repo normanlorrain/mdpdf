@@ -8,7 +8,7 @@ parser = commonmark.Parser()
 
 
 def convertMarkdown2Pdf(inputFileName, outputFileName):
-    mdFile = open(inputFileName, "r")
+    mdFile = open(inputFileName, "r", encoding="utf-8")
     entireFile = mdFile.read()
     ast = parser.parse(entireFile)
 

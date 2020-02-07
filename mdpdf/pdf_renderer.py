@@ -5,6 +5,8 @@ from __future__ import unicode_literals
 
 import re
 from builtins import str
+import fitz
+import sys
 
 from .renderer import Renderer
 
@@ -17,11 +19,40 @@ def potentially_unsafe(url):
     return re.search(reUnsafeProtocol, url) and (not re.search(reSafeDataProtocol, url))
 
 
+width, height = fitz.PaperSize("letter")  # choose paper format
+fontsz = 10  # choose font size of text
+lineheight = fontsz * 1.2  # line height is 20% larger
+margin = 72
+
+# choose a nice mono-spaced font of the system, instead of 'Courier'.
+# To use a standard PDF base14 font, e.g. set font='Courier' and ffile=None
+ffile = "C:/windows/fonts/consola.ttf"  # font file
+font = "F0"  # fontname
+
+
 class PdfRenderer(Renderer):
     def __init__(self, pdf):
         self.pdf = pdf
+        self.doc = fitz.open()
+        self.currentPage = self.doc.newPage(-1, width, height)
         self.disable_tags = 0
         self.last_out = "\n"
+        self.insertPoint = (margin, margin + lineheight)
+
+    def __del__(self):
+        m = {
+            "creationDate": fitz.getPDFnow(),  # current timestamp
+            "modDate": fitz.getPDFnow(),  # current timestamp
+            "creator": "mdpdf",
+            "producer": "Markdown to PDF",
+            "title": "title goes here",
+            "subject": "subject here",
+            "author": "author here",
+        }
+
+        self.doc.setMetadata(m)
+        self.doc.save(str(self.pdf), garbage=4, deflate=True)
+        self.doc.close()
 
     def escape(self, text):
         return text
@@ -45,7 +76,7 @@ class PdfRenderer(Renderer):
     # Node methods #
 
     def text(self, node, entering=None):
-        self.out(node.literal)
+        self.currentPage.insertText(self.insertPoint, node.literal)
 
     def softbreak(self, node=None, entering=None):
         self.lit("blahhh")

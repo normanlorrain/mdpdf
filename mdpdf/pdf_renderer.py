@@ -229,10 +229,8 @@ class PdfRenderer(Renderer):
 
     def html_block(self, node, entering):
         self.cr("block")
-        if self.options.get("safe"):
-            self.lit("<!-- raw HTML omitted -->")
-        else:
-            self.lit(node.literal)
+
+        self.lit(node.literal)
         self.cr("block")
 
     def custom_inline(self, node, entering):
@@ -265,3 +263,6 @@ class PdfRenderer(Renderer):
     def print(self, text):
         self.currentPage.insertText(self.insertPoint, text, fontsize=fontsz)
         self.insertPoint.x += fitz.getTextlength(text, fontsize=fontsz)
+
+    def lit(self, s):
+        self.print(s)

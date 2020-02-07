@@ -8,19 +8,17 @@ class Renderer(object):
 
         @param ast {Node} The root of the abstract syntax tree.
         """
-        walker = ast.walker()
 
         self.buf = ""
         self.last_out = "\n"
 
-        event = walker.nxt()
-        while event is not None:
-            type_ = event["node"].t
-            if hasattr(self, type_):
-                getattr(self, type_)(event["node"], event["entering"])
-            event = walker.nxt()
+        for node, entering in ast.walker():
+            getattr(self, node.t)(node, entering)
 
         return self.buf
+
+    def document(self, node, entering):
+        pass
 
     def lit(self, s):
         """Concatenate a literal string to the buffer.

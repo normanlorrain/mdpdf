@@ -79,29 +79,40 @@ class PdfRenderer(Renderer):
     # Node methods #
 
     def text(self, node, entering=None):
-        spaceWidth = fitz.getTextlength(" ")
-        for word in node.literal.split(" "):
-            wordWidth = fitz.getTextlength(word, fontsize=fontsz)
-            # TODO Word > printable area
+        # TODO Word > printable area
+        line = node.literal
+        lineWidth = fitz.getTextlength(line, fontsize=fontsz)
+        budget = width - margin - self.insertPoint.x
+        if lineWidth < budget:
+            self.currentPage.insertText(self.insertPoint, line, fontsize=fontsz)
+            self.insertPoint.x += lineWidth
+        else:
+            prefix = line
+            suffix = line
             while True:
-                budget = width - margin - self.insertPoint.x
-                if wordWidth < budget:
-                    self.currentPage.insertText(self.insertPoint, word, fontsize=fontsz)
-                    self.insertPoint.x += wordWidth
-                    budget -= wordWidth
-                    if spaceWidth < budget:
-                        self.currentPage.insertText(
-                            self.insertPoint, " ", fontsize=fontsz
-                        )
-                        self.insertPoint.x += spaceWidth
-                        budget -= spaceWidth
+                index = line.rfind(" ", 0, len(prefix))
+                if index == -1:
                     break
+                prefix = line[:index]
+                prefixWidth = fitz.getTextlength(prefix, fontsize=fontsz)
+                if prefixWidth > budget:
+                    continue
                 else:
-                    self.cr("text")
+                    self.currentPage.insertText(
+                        self.insertPoint, prefix, fontsize=fontsz
+                    )
+                    self.insertPoint.x += prefixWidth
+
+                    suffix = line[index + 1 :]
+                    break
+            self.cr("text")
+            self.currentPage.insertText(self.insertPoint, suffix, fontsize=fontsz)
+            self.insertPoint.x += fitz.getTextlength(suffix, fontsize=fontsz)
 
     # Softbreaks are just CRs in the input, within paragraph
     def softbreak(self, node=None, entering=None):
-        pass  # self.cr("softbreak")
+        self.currentPage.insertText(self.insertPoint, " ", fontsize=fontsz)
+        self.insertPoint.x += fitz.getTextlength(" ", fontsize=fontsz)
 
     def linebreak(self, node=None, entering=None):
         self.cr("linebreak")
@@ -255,3 +266,7 @@ class PdfRenderer(Renderer):
         if self.insertPoint.y > height - margin:
             self.currentPage = self.doc.newPage(-1, width, height)
             self.insertPoint = fitz.Point(margin, margin + lineheight)
+
+    def print(text):
+        self.currentPage.insertText(self.insertPoint, text, fontsize=fontsz)
+        self.insertPoint.x += fitz.getTextlength(text, fontsize=fontsz)

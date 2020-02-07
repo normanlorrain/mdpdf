@@ -38,6 +38,9 @@ class PdfRenderer(Renderer):
         self.disable_tags = 0
         self.last_out = "\n"
         self.insertPoint = (margin, margin + lineheight)
+        self.insertRectangle = fitz.Rect(
+            margin, margin + lineheight, width - margin, height - margin,
+        )
 
     def __del__(self):
         m = {
@@ -76,7 +79,17 @@ class PdfRenderer(Renderer):
     # Node methods #
 
     def text(self, node, entering=None):
-        self.currentPage.insertText(self.insertPoint, node.literal)
+        # self.currentPage.insertText(self.insertPoint, node.literal)
+        res = self.currentPage.insertTextbox(self.insertRectangle, node.literal)
+        print("text line left:", res)
+        if res > 0:
+            self.insertRectangle.y0 = self.insertRectangle.y1 - res
+        else:
+            self.currentPage = self.doc.newPage(-1, width, height)
+            self.insertRectangle = fitz.Rect(
+                margin, margin + lineheight, width - margin, height - margin,
+            )
+            res = self.currentPage.insertTextbox(self.insertRectangle, node.literal)
 
     def softbreak(self, node=None, entering=None):
         self.lit("blahhh")

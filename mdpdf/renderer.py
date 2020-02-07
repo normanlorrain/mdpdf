@@ -20,14 +20,6 @@ class Renderer(object):
     def document(self, node, entering):
         pass
 
-    def lit(self, s):
-        """Concatenate a literal string to the buffer.
-
-        @param str {String} The string to concatenate.
-        """
-        self.buf += s
-        self.last_out = s
-
     def out(self, s):
         """Concatenate a string to the buffer possibly escaping the content.
 

@@ -9,11 +9,12 @@ outdir.mkdir(exist_ok=True)
 
 
 def test_entire_spec():
-    infilename = indir / "syntax.md"
-    outfilename = outdir / "syntax.pdf"
+    infilename = indir / "spec.txt"
+    outfilename = outdir / "spec.pdf"
     convertMarkdown2Pdf(infilename, outfilename)
 
 
 if __name__ == "__main__":
 
     test_entire_spec()
+

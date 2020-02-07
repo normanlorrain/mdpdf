@@ -28,10 +28,6 @@ class Renderer(object):
         self.buf += s
         self.last_out = s
 
-    def cr(self):
-        if self.last_out != "\n":
-            self.lit("\n")
-
     def out(self, s):
         """Concatenate a string to the buffer possibly escaping the content.
 

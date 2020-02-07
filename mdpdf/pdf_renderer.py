@@ -37,7 +37,7 @@ class PdfRenderer(Renderer):
         self.currentPage = self.doc.newPage(-1, width, height)
         self.disable_tags = 0
         self.last_out = "\n"
-        self.insertPoint = (margin, margin + lineheight)
+        self.insertPoint = fitz.Point(margin, margin + lineheight)
         self.insertRectangle = fitz.Rect(
             margin, margin + lineheight, width - margin, height - margin,
         )
@@ -79,24 +79,32 @@ class PdfRenderer(Renderer):
     # Node methods #
 
     def text(self, node, entering=None):
-        # self.currentPage.insertText(self.insertPoint, node.literal)
-        res = self.currentPage.insertTextbox(self.insertRectangle, node.literal)
-        print("text line left:", res)
-        if res > 0:
-            self.insertRectangle.y0 = self.insertRectangle.y1 - res
-        else:
-            self.currentPage = self.doc.newPage(-1, width, height)
-            self.insertRectangle = fitz.Rect(
-                margin, margin + lineheight, width - margin, height - margin,
-            )
-            res = self.currentPage.insertTextbox(self.insertRectangle, node.literal)
+        spaceWidth = fitz.getTextlength(" ")
+        for word in node.literal.split(" "):
+            wordWidth = fitz.getTextlength(word, fontsize=fontsz)
+            # TODO Word > printable area
+            while True:
+                budget = width - margin - self.insertPoint.x
+                if wordWidth < budget:
+                    self.currentPage.insertText(self.insertPoint, word, fontsize=fontsz)
+                    self.insertPoint.x += wordWidth
+                    budget -= wordWidth
+                    if spaceWidth < budget:
+                        self.currentPage.insertText(
+                            self.insertPoint, " ", fontsize=fontsz
+                        )
+                        self.insertPoint.x += spaceWidth
+                        budget -= spaceWidth
+                    break
+                else:
+                    self.cr("text")
 
+    # Softbreaks are just CRs in the input, within paragraph
     def softbreak(self, node=None, entering=None):
-        self.lit("blahhh")
+        pass  # self.cr("softbreak")
 
     def linebreak(self, node=None, entering=None):
-        self.tag("br", [], True)
-        self.cr()
+        self.cr("linebreak")
 
     def link(self, node, entering):
         # attrs = self.attrs(node)
@@ -139,21 +147,23 @@ class PdfRenderer(Renderer):
                 return
 
         if entering:
-            self.cr()
-            self.tag("p")
+            self.insertPoint.x = margin
+            self.insertPoint.y += lineheight
+            if self.insertPoint.y > height - margin:
+                self.currentPage = self.doc.newPage(-1, width, height)
+                self.insertPoint = fitz.Point(margin, margin + lineheight)
         else:
-            self.tag("/p")
-            self.cr()
+            self.cr("p-")
 
     def heading(self, node, entering):
-        tagname = "h" + str(node.level)
-        # attrs = self.attrs(node)
+        global fontsz
         if entering:
-            self.cr()
-            self.tag(tagname)
+            if self.insertPoint.y > margin + lineheight:
+                self.cr("H+")
+            fontsz += 4
         else:
-            self.tag("/" + tagname)
-            self.cr()
+            self.cr("H-")
+            fontsz -= 4
 
     def code(self, node, entering):
         self.tag("code")
@@ -166,30 +176,22 @@ class PdfRenderer(Renderer):
         # if len(info_words) > 0 and len(info_words[0]) > 0:
         #     attrs.append(["class", "language-" + self.escape(info_words[0])])
 
-        self.cr()
-        self.tag("pre")
-        self.tag("code")
+        self.cr("code/")
+
         self.out(node.literal)
-        self.tag("/code")
-        self.tag("/pre")
-        self.cr()
+
+        self.cr("/code")
 
     def thematic_break(self, node, entering):
         # attrs = self.attrs(node)
-        self.cr()
-        self.tag("hr", True)
-        self.cr()
+        self.cr("tb")
 
     def block_quote(self, node, entering):
         # attrs = self.attrs(node)
         if entering:
-            self.cr()
-            self.tag("blockquote")
-            self.cr()
+            self.cr("bq+")
         else:
-            self.cr()
-            self.tag("/blockquote")
-            self.cr()
+            self.cr("bq-")
 
     def list(self, node, entering):
         tagname = "ul" if node.list_data["type"] == "bullet" else "ol"
@@ -200,21 +202,18 @@ class PdfRenderer(Renderer):
                 # attrs.append(["start", str(start)])
                 pass
 
-            self.cr()
-            # self.tag(tagname, attrs)
-            self.cr()
+            self.cr("l+")
+
         else:
-            self.cr()
-            self.tag("/" + tagname)
-            self.cr()
+            self.cr("l-")
 
     def item(self, node, entering):
         # attrs = self.attrs(node)
         if entering:
-            self.tag("li")
+            pass
         else:
-            self.tag("/li")
-            self.cr()
+
+            self.cr("li-")
 
     def html_inline(self, node, entering):
         if self.options.get("safe"):
@@ -223,12 +222,12 @@ class PdfRenderer(Renderer):
             self.lit(node.literal)
 
     def html_block(self, node, entering):
-        self.cr()
+        self.cr("block")
         if self.options.get("safe"):
             self.lit("<!-- raw HTML omitted -->")
         else:
             self.lit(node.literal)
-        self.cr()
+        self.cr("block")
 
     def custom_inline(self, node, entering):
         if entering and node.on_enter:
@@ -249,3 +248,10 @@ class PdfRenderer(Renderer):
     def out(self, s):
         self.lit(self.escape(s))
 
+    def cr(self, note):
+        self.currentPage.insertText(self.insertPoint, note, fontsize=6)
+        self.insertPoint.x = margin
+        self.insertPoint.y += lineheight
+        if self.insertPoint.y > height - margin:
+            self.currentPage = self.doc.newPage(-1, width, height)
+            self.insertPoint = fitz.Point(margin, margin + lineheight)

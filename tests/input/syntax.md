@@ -1,5 +1,5 @@
 # Markdown: Syntax
-[see](https://daringfireball.net/projects/markdown/syntax)
+Source: [(https://daringfireball.net/projects/markdown/syntax](https://daringfireball.net/projects/markdown/syntax)
 *   [Overview](#overview)
     *   [Philosophy](#philosophy)
     *   [Inline HTML](#html)

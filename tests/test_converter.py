@@ -3,7 +3,7 @@ from pathlib import Path
 
 from mdpdf.converter import convertMarkdown2Pdf
 
-indir = Path(__file__).parent.absolute()
+indir = Path(__file__).parent.absolute() / "input"
 outdir = Path(__file__).parent.absolute() / "output"
 outdir.mkdir(exist_ok=True)
 
@@ -15,4 +15,5 @@ def test_entire_spec():
 
 
 if __name__ == "__main__":
+
     test_entire_spec()

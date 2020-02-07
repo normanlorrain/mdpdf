@@ -105,7 +105,7 @@ class PdfRenderer(Renderer):
 
                     suffix = line[index + 1 :]
                     break
-            self.cr("text")
+            self.cr(chr(0xAC))
             self.currentPage.insertText(self.insertPoint, suffix, fontsize=fontsz)
             self.insertPoint.x += fitz.getTextlength(suffix, fontsize=fontsz)
 
@@ -126,9 +126,10 @@ class PdfRenderer(Renderer):
             # if node.title:
             #     attrs.append(["title", self.escape(node.title)])
 
-            self.tag("a")
+            self.print(f"LINK:{node.destination}")
+            # There's also a node.title attribute, not relevant to PDFs
         else:
-            self.tag("/a")
+            pass
 
     def image(self, node, entering):
         if entering:
@@ -205,15 +206,9 @@ class PdfRenderer(Renderer):
             self.cr("bq-")
 
     def list(self, node, entering):
-        tagname = "ul" if node.list_data["type"] == "bullet" else "ol"
-        # attrs = self.attrs(node)
         if entering:
-            start = node.list_data["start"]
-            if start is not None and start != 1:
-                # attrs.append(["start", str(start)])
-                pass
-
             self.cr("l+")
+            self.print(" \u00b7 ")
 
         else:
             self.cr("l-")
@@ -267,6 +262,6 @@ class PdfRenderer(Renderer):
             self.currentPage = self.doc.newPage(-1, width, height)
             self.insertPoint = fitz.Point(margin, margin + lineheight)
 
-    def print(text):
+    def print(self, text):
         self.currentPage.insertText(self.insertPoint, text, fontsize=fontsz)
         self.insertPoint.x += fitz.getTextlength(text, fontsize=fontsz)

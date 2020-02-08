@@ -84,10 +84,15 @@ class PdfRenderer(Renderer):
     def text(self, node, entering=None):
         # TODO Word > printable area
         line = node.literal
+        self.printLine(line, fontname="helv")
+
+    def printLine(self, line, fontname):
         lineWidth = fitz.getTextlength(line, fontsize=fontsz)
         budget = width - margin - self.insertPoint.x
         if lineWidth < budget:
-            self.currentPage.insertText(self.insertPoint, line, fontsize=fontsz)
+            self.currentPage.insertText(
+                self.insertPoint, line, fontname=fontname, fontsize=fontsz
+            )
             self.insertPoint.x += lineWidth
         else:
             prefix = line
@@ -167,21 +172,21 @@ class PdfRenderer(Renderer):
             fontsz -= headingFontSizes[node.level]
 
     def code(self, node, entering):
-        self.tag("code")
-        self.out(node.literal)
-        self.tag("/code")
+        self.printLine(node.literal, fontname="cour")
 
     def code_block(self, node, entering):
-        info_words = node.info.split() if node.info else []
-        # # attrs = self.attrs(node)
-        # if len(info_words) > 0 and len(info_words[0]) > 0:
-        #     attrs.append(["class", "language-" + self.escape(info_words[0])])
+        if entering:
+            self.crHalfLine()
+            self.indent += 32
+            self.insertPoint.x += 32
+            for line in node.literal.split("\n"):
+                self.printLine(line, fontname="cour")
+                self.cr("")
 
-        self.cr("code/")
-
-        self.out(node.literal)
-
-        self.cr("/code")
+            # else: # doesn't get called with entering = False?
+            self.indent -= 32
+            self.insertPoint.x -= 32
+            self.cr("codeblock-")
 
     def thematic_break(self, node, entering):
         # attrs = self.attrs(node)

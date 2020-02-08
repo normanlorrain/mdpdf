@@ -37,6 +37,7 @@ class PdfRenderer(Renderer):
         self.currentPage = self.doc.newPage(-1, width, height)
         self.disable_tags = 0
         self.last_out = "\n"
+        self.indent = 0
         self.insertPoint = fitz.Point(margin, margin + lineheight)
         self.insertRectangle = fitz.Rect(
             margin, margin + lineheight, width - margin, height - margin,
@@ -133,18 +134,8 @@ class PdfRenderer(Renderer):
 
     def image(self, node, entering):
         if entering:
-            if self.disable_tags == 0:
-                if self.options.get("safe") and potentially_unsafe(node.destination):
-                    self.lit('<img src="" alt="')
-                else:
-                    self.lit('<img src="' + self.escape(node.destination) + '" alt="')
-            self.disable_tags += 1
-        else:
-            self.disable_tags -= 1
-            if self.disable_tags == 0:
-                if node.title:
-                    self.lit('" title="' + self.escape(node.title))
-                self.lit('" />')
+            self.print(f"IMAGE:{node.destination}")
+        # node.title
 
     def emph(self, node, entering):
         self.tag("em" if entering else "/em")
@@ -159,11 +150,7 @@ class PdfRenderer(Renderer):
                 return
 
         if entering:
-            self.insertPoint.x = margin
-            self.insertPoint.y += lineheight
-            if self.insertPoint.y > height - margin:
-                self.currentPage = self.doc.newPage(-1, width, height)
-                self.insertPoint = fitz.Point(margin, margin + lineheight)
+            self.crHalfLine()
         else:
             self.cr("p-")
 
@@ -201,24 +188,31 @@ class PdfRenderer(Renderer):
     def block_quote(self, node, entering):
         # attrs = self.attrs(node)
         if entering:
-            self.cr("bq+")
+            self.crHalfLine()
+            self.indent += 32
+            self.insertPoint.x += 32
+
         else:
+            self.indent -= 32
+            self.insertPoint.x -= 32
             self.cr("bq-")
 
     def list(self, node, entering):
+        # node.list_data
         if entering:
-            self.cr("l+")
-            self.print(" \u00b7 ")
-
+            self.crHalfLine()
+            self.indent += 32
+            self.insertPoint.x += 32
         else:
-            self.cr("l-")
+            self.indent -= 32
+            self.insertPoint.x -= 32
 
     def item(self, node, entering):
         # attrs = self.attrs(node)
+        # node.sourcepos
         if entering:
-            pass
+            self.print("\u00b7 ")
         else:
-
             self.cr("li-")
 
     def html_inline(self, node, entering):
@@ -254,11 +248,18 @@ class PdfRenderer(Renderer):
 
     def cr(self, note):
         self.currentPage.insertText(self.insertPoint, note, fontsize=6)
-        self.insertPoint.x = margin
+        self.insertPoint.x = margin + self.indent
         self.insertPoint.y += lineheight
         if self.insertPoint.y > height - margin:
             self.currentPage = self.doc.newPage(-1, width, height)
-            self.insertPoint = fitz.Point(margin, margin + lineheight)
+            self.insertPoint = fitz.Point(margin + self.indent, margin + lineheight)
+
+    def crHalfLine(self):
+        self.insertPoint.x = margin + self.indent
+        self.insertPoint.y += lineheight / 2
+        if self.insertPoint.y > height - margin:
+            self.currentPage = self.doc.newPage(-1, width, height)
+            self.insertPoint = fitz.Point(margin + self.indent, margin + lineheight)
 
     def print(self, text):
         self.currentPage.insertText(self.insertPoint, text, fontsize=fontsz)

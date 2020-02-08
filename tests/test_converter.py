@@ -9,6 +9,12 @@ outdir.mkdir(exist_ok=True)
 
 
 def test_entire_spec():
+    infilename = indir / "spec.txt"
+    outfilename = outdir / "spec.pdf"
+    convertMarkdown2Pdf(infilename, outfilename)
+
+
+def test_quick():
     infilename = indir / "quick.md"
     outfilename = outdir / "quick.pdf"
     convertMarkdown2Pdf(infilename, outfilename)

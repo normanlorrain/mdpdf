@@ -21,7 +21,7 @@ def potentially_unsafe(url):
 
 width, height = fitz.PaperSize("letter")  # choose paper format
 fontsz = 10  # choose font size of text
-headingFontSizes = [18, 16, 14, 12]
+headingFontSizes = [18, 16, 14, 12, 10]
 lineheight = fontsz * 1.2  # line height is 20% larger
 margin = 72
 
@@ -154,7 +154,8 @@ class PdfRenderer(Renderer):
                 }
                 self.currentPage.insertLink(newLink)
             link = self.currentPage.firstLink
-            link.setBorder(None)
+            if link:
+                link.setBorder(None)
 
             self.linkDestination = None
             self.linkRects.clear()

@@ -33,6 +33,7 @@ font = "F0"  # fontname
 
 class PdfRenderer(Renderer):
     def __init__(self, pdf):
+        self.list_data = list()  # to store the states of ordered/unordered list
         self.pdf = pdf
         self.doc = fitz.open()
         self.currentPage = self.doc.newPage(-1, width, height)
@@ -200,11 +201,14 @@ class PdfRenderer(Renderer):
 
     def list(self, node, entering):
         # node.list_data
+
         if entering:
+            self.list_data.append(node.list_data)
             self.crHalfLine()
             self.indent += 32
             self.insertPoint.x += 32
         else:
+            self.list_data.pop()
             self.indent -= 32
             self.insertPoint.x -= 32
 
@@ -212,7 +216,10 @@ class PdfRenderer(Renderer):
         # attrs = self.attrs(node)
         # node.sourcepos
         if entering:
-            self.print("\u00b7 ")
+            if self.list_data[-1]["type"] == "ordered":
+                self.print(f" {node.list_data['start']} ")
+            else:
+                self.print("\u00b7 ")
         else:
             self.cr("li-")
 

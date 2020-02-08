@@ -44,6 +44,9 @@ class PdfRenderer(Renderer):
         self.insertRectangle = fitz.Rect(
             margin, margin + lineheight, width - margin, height - margin,
         )
+        self.linkDestination = None
+        self.linkRects = []
+        self.fontname = "helv"
 
     def __del__(self):
         m = {
@@ -84,16 +87,18 @@ class PdfRenderer(Renderer):
     def text(self, node, entering=None):
         # TODO Word > printable area
         line = node.literal
-        self.printLine(line, fontname="helv")
+        if self.linkDestination:
+            self.printLine(line, fontname="cobi", isLink=True)
+        else:
+            self.printLine(line, fontname="helv")
 
-    def printLine(self, line, fontname):
-        lineWidth = fitz.getTextlength(line, fontsize=fontsz)
+    def printLine(self, line, fontname, isLink=False):
+        lineWidth = fitz.getTextlength(line, fontname=fontname, fontsize=fontsz)
         budget = width - margin - self.insertPoint.x
         if lineWidth < budget:
-            self.currentPage.insertText(
-                self.insertPoint, line, fontname=fontname, fontsize=fontsz
-            )
+            self.printSegment(line, fontname, isLink)
             self.insertPoint.x += lineWidth
+
         else:
             prefix = line
             suffix = line
@@ -118,26 +123,41 @@ class PdfRenderer(Renderer):
             self.insertPoint.x += fitz.getTextlength(suffix, fontsize=fontsz)
 
     # Softbreaks are just CRs in the input, within paragraph
+    # it becomes a space.
     def softbreak(self, node=None, entering=None):
-        self.currentPage.insertText(self.insertPoint, " ", fontsize=fontsz)
-        self.insertPoint.x += fitz.getTextlength(" ", fontsize=fontsz)
+        lineWidth = fitz.getTextlength(" ", fontname=self.fontname, fontsize=fontsz)
+        budget = width - margin - self.insertPoint.x
+        if lineWidth < budget:
+            self.printSegment(" ", self.fontname)
+        else:
+            pass  # We're about to to a hard break anyway.
+        # self.currentPage.insertText(self.insertPoint, " ", fontsize=fontsz)
+        # self.insertPoint.x += fitz.getTextlength(" ", fontsize=fontsz)
 
     def linebreak(self, node=None, entering=None):
         self.cr("linebreak")
 
     def link(self, node, entering):
-        # attrs = self.attrs(node)
         if entering:
-            # if not (self.options.get("safe") and potentially_unsafe(node.destination)):
-            #     attrs.append(["href", self.escape(node.destination)])
-
-            # if node.title:
-            #     attrs.append(["title", self.escape(node.title)])
-
-            self.print(f"LINK:{node.destination}")
-            # There's also a node.title attribute, not relevant to PDFs
+            self.linkDestination = node.destination
         else:
-            pass
+            links = self.currentPage.getLinks()
+            for rect in self.linkRects:
+                newLink = {
+                    "kind": fitz.LINK_URI,
+                    "from": rect,  # the area on the page that is "clickable"
+                    "page": None,
+                    "to": None,
+                    "file": None,
+                    "uri": self.linkDestination,
+                    "xref": None,
+                }
+                self.currentPage.insertLink(newLink)
+            link = self.currentPage.firstLink
+            link.setBorder(None)
+
+            self.linkDestination = None
+            self.linkRects.clear()
 
     def image(self, node, entering):
         if entering:
@@ -180,8 +200,9 @@ class PdfRenderer(Renderer):
             self.indent += 32
             self.insertPoint.x += 32
             for line in node.literal.split("\n"):
-                self.printLine(line, fontname="cour")
-                self.cr("")
+                if len(line):
+                    self.printLine(line, fontname="cour")
+                    self.cr("")
 
             # else: # doesn't get called with entering = False?
             self.indent -= 32
@@ -260,7 +281,7 @@ class PdfRenderer(Renderer):
         self.lit(self.escape(s))
 
     def cr(self, note):
-        self.currentPage.insertText(self.insertPoint, note, fontsize=6)
+        self.currentPage.insertText(self.insertPoint, note, fontsize=3)
         self.insertPoint.x = margin + self.indent
         self.insertPoint.y += lineheight
         if self.insertPoint.y > height - margin:
@@ -277,6 +298,21 @@ class PdfRenderer(Renderer):
     def print(self, text):
         self.currentPage.insertText(self.insertPoint, text, fontsize=fontsz)
         self.insertPoint.x += fitz.getTextlength(text, fontsize=fontsz)
+
+    def printSegment(self, line, fontname, isLink=False):
+        self.currentPage.insertText(
+            self.insertPoint, line, fontname=fontname, fontsize=fontsz
+        )
+        if self.linkDestination:
+            lineWidth = fitz.getTextlength(line, fontname=fontname, fontsize=fontsz)
+            self.linkRects.append(
+                fitz.Rect(
+                    self.insertPoint.x,
+                    self.insertPoint.y - lineheight,
+                    self.insertPoint.x + lineWidth,
+                    self.insertPoint.y,
+                )
+            )
 
     def lit(self, s):
         self.print(s)

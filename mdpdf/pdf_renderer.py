@@ -97,8 +97,6 @@ class PdfRenderer(Renderer):
         budget = width - margin - self.insertPoint.x
         if lineWidth < budget:
             self.printSegment(line)
-            self.insertPoint.x += lineWidth
-
         else:
             prefix = line
             suffix = line
@@ -113,20 +111,11 @@ class PdfRenderer(Renderer):
                 if prefixWidth > budget:
                     continue
                 else:
-                    self.currentPage.insertText(
-                        self.insertPoint, prefix, fontname=fontName, fontsize=fontSize
-                    )
-                    self.insertPoint.x += prefixWidth
-
+                    self.printSegment(prefix)
                     suffix = line[index + 1 :]
                     break
             self.cr(chr(0xAC))
-            self.currentPage.insertText(
-                self.insertPoint, suffix, fontname=fontName, fontsize=fontSize
-            )
-            self.insertPoint.x += fitz.getTextlength(
-                suffix, fontname=fontName, fontsize=fontSize
-            )
+            self.printSegment(suffix)
 
     # Softbreaks are just CRs in the input, within paragraph
     # it becomes a space.
@@ -147,11 +136,15 @@ class PdfRenderer(Renderer):
 
     def link(self, node, entering):
         if entering:
+            # self.softbreak()  # Add a space before the link
             pushStyle("code", {"fontName": "cobi"})
 
             self.linkDestination = node.destination
         else:
+            # self.softbreak()  # Add a space after the link
             links = self.currentPage.getLinks()
+            # the link on the page can be split over several words & lines
+            # So we need to create the clickable areas.
             for rect in self.linkRects:
                 newLink = {
                     "kind": fitz.LINK_URI,
@@ -163,9 +156,6 @@ class PdfRenderer(Renderer):
                     "xref": None,
                 }
                 self.currentPage.insertLink(newLink)
-            link = self.currentPage.firstLink
-            if link:
-                link.setBorder(None)
 
             self.linkDestination = None
             self.linkRects.clear()
@@ -304,15 +294,13 @@ class PdfRenderer(Renderer):
         self.insertPoint.x = margin + self.indent
         self.insertPoint.y += lineheight
         if self.insertPoint.y > height - margin:
-            self.currentPage = self.doc.newPage(-1, width, height)
-            self.insertPoint = fitz.Point(margin + self.indent, margin + lineheight)
+            self.newPage()
 
     def crHalfLine(self):
         self.insertPoint.x = margin + self.indent
         self.insertPoint.y += lineheight / 2
         if self.insertPoint.y > height - margin:
-            self.currentPage = self.doc.newPage(-1, width, height)
-            self.insertPoint = fitz.Point(margin + self.indent, margin + lineheight)
+            self.newPage()
 
     def print(self, text):
         fontName = currentStyle().fontName
@@ -328,12 +316,11 @@ class PdfRenderer(Renderer):
     def printSegment(self, line):
         fontName = currentStyle().fontName
         fontSize = currentStyle().fontSize
-
+        lineWidth = fitz.getTextlength(line, fontname=fontName, fontsize=fontSize)
         self.currentPage.insertText(
             self.insertPoint, line, fontname=fontName, fontsize=fontSize
         )
         if self.linkDestination:
-            lineWidth = fitz.getTextlength(line, fontname=fontName, fontsize=fontSize)
             self.linkRects.append(
                 fitz.Rect(
                     self.insertPoint.x,
@@ -342,6 +329,7 @@ class PdfRenderer(Renderer):
                     self.insertPoint.y,
                 )
             )
+        self.insertPoint.x += lineWidth
 
     def lit(self, s):
         self.print(s)
@@ -351,3 +339,13 @@ class PdfRenderer(Renderer):
             pushStyle("base", {"fontName": "Helvetica", "fontSize": 10, "indent": 0})
         else:
             popStyle()  # We should be done anyway
+
+    def newPage(self):
+        link = self.currentPage.firstLink
+        while link:
+            link.setBorder(None)
+            link = link.next
+
+        self.currentPage = self.doc.newPage(-1, width, height)
+        self.insertPoint = fitz.Point(margin + self.indent, margin + lineheight)
+

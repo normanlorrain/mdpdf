@@ -89,6 +89,7 @@ class PdfRenderer(Renderer):
         line = node.literal
         self.printLine(line)
 
+    # print a line that may break
     def printLine(self, line):
         style = currentStyle()
         fontName = style.fontName
@@ -163,7 +164,7 @@ class PdfRenderer(Renderer):
 
     def image(self, node, entering):
         if entering:
-            self.print(f"IMAGE:{node.destination}")
+            self.printSegment(f"IMAGE:{node.destination}")
         # node.title
 
     def emph(self, node, entering):
@@ -252,9 +253,9 @@ class PdfRenderer(Renderer):
         # node.sourcepos
         if entering:
             if self.list_data[-1]["type"] == "ordered":
-                self.print(f" {node.list_data['start']} ")
+                self.printSegment(f" {node.list_data['start']} ")
             else:
-                self.print("\u00b7 ")
+                self.printSegment("\u00b7 ")
         else:
             self.cr("li-")
 
@@ -302,17 +303,6 @@ class PdfRenderer(Renderer):
         if self.insertPoint.y > height - margin:
             self.newPage()
 
-    def print(self, text):
-        fontName = currentStyle().fontName
-        fontSize = currentStyle().fontSize
-
-        self.currentPage.insertText(
-            self.insertPoint, text, fontname=fontName, fontsize=fontSize
-        )
-        self.insertPoint.x += fitz.getTextlength(
-            text, fontname=fontName, fontsize=fontSize
-        )
-
     def printSegment(self, line):
         fontName = currentStyle().fontName
         fontSize = currentStyle().fontSize
@@ -332,7 +322,7 @@ class PdfRenderer(Renderer):
         self.insertPoint.x += lineWidth
 
     def lit(self, s):
-        self.print(s)
+        self.printSegment(s)
 
     def document(self, node, entering):
         if entering:

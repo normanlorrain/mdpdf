@@ -17,9 +17,6 @@ class Renderer(object):
 
         return self.buf
 
-    def document(self, node, entering):
-        pass
-
     def out(self, s):
         """Concatenate a string to the buffer possibly escaping the content.
 

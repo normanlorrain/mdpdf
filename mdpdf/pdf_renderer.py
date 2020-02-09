@@ -9,6 +9,7 @@ import fitz
 import sys
 
 from .renderer import Renderer
+from .style import *
 
 
 reUnsafeProtocol = re.compile(r"^javascript:|vbscript:|file:|data:", re.IGNORECASE)
@@ -20,15 +21,15 @@ def potentially_unsafe(url):
 
 
 width, height = fitz.PaperSize("letter")  # choose paper format
-fontsz = 10  # choose font size of text
-headingFontSizes = [18, 16, 14, 12, 10]
-lineheight = fontsz * 1.2  # line height is 20% larger
+fontSize = 10  # choose font size of text
+headingfontSizes = [18, 16, 14, 12, 10]
+lineheight = fontSize * 1.2  # line height is 20% larger
 margin = 72
 
 # choose a nice mono-spaced font of the system, instead of 'Courier'.
 # To use a standard PDF base14 font, e.g. set font='Courier' and ffile=None
 ffile = "C:/windows/fonts/consola.ttf"  # font file
-font = "F0"  # fontname
+font = "F0"  # fontName
 
 
 class PdfRenderer(Renderer):
@@ -46,7 +47,6 @@ class PdfRenderer(Renderer):
         )
         self.linkDestination = None
         self.linkRects = []
-        self.fontname = "helv"
 
     def __del__(self):
         m = {
@@ -87,16 +87,16 @@ class PdfRenderer(Renderer):
     def text(self, node, entering=None):
         # TODO Word > printable area
         line = node.literal
-        if self.linkDestination:
-            self.printLine(line, fontname="cobi", isLink=True)
-        else:
-            self.printLine(line, fontname="helv")
+        self.printLine(line)
 
-    def printLine(self, line, fontname, isLink=False):
-        lineWidth = fitz.getTextlength(line, fontname=fontname, fontsize=fontsz)
+    def printLine(self, line):
+        style = currentStyle()
+        fontName = style.fontName
+        fontSize = style.fontSize
+        lineWidth = fitz.getTextlength(line, fontName, fontSize)
         budget = width - margin - self.insertPoint.x
         if lineWidth < budget:
-            self.printSegment(line, fontname, isLink)
+            self.printSegment(line)
             self.insertPoint.x += lineWidth
 
         else:
@@ -107,38 +107,48 @@ class PdfRenderer(Renderer):
                 if index == -1:
                     break
                 prefix = line[:index]
-                prefixWidth = fitz.getTextlength(prefix, fontsize=fontsz)
+                prefixWidth = fitz.getTextlength(
+                    prefix, fontname=fontName, fontsize=fontSize
+                )
                 if prefixWidth > budget:
                     continue
                 else:
                     self.currentPage.insertText(
-                        self.insertPoint, prefix, fontsize=fontsz
+                        self.insertPoint, prefix, fontname=fontName, fontsize=fontSize
                     )
                     self.insertPoint.x += prefixWidth
 
                     suffix = line[index + 1 :]
                     break
             self.cr(chr(0xAC))
-            self.currentPage.insertText(self.insertPoint, suffix, fontsize=fontsz)
-            self.insertPoint.x += fitz.getTextlength(suffix, fontsize=fontsz)
+            self.currentPage.insertText(
+                self.insertPoint, suffix, fontname=fontName, fontsize=fontSize
+            )
+            self.insertPoint.x += fitz.getTextlength(
+                suffix, fontname=fontName, fontsize=fontSize
+            )
 
     # Softbreaks are just CRs in the input, within paragraph
     # it becomes a space.
     def softbreak(self, node=None, entering=None):
-        lineWidth = fitz.getTextlength(" ", fontname=self.fontname, fontsize=fontsz)
+        fontName = currentStyle().fontName
+        fontSize = currentStyle().fontSize
+        lineWidth = fitz.getTextlength(" ", fontname=fontName, fontsize=fontSize)
         budget = width - margin - self.insertPoint.x
         if lineWidth < budget:
-            self.printSegment(" ", self.fontname)
+            self.printSegment(" ")
         else:
             pass  # We're about to to a hard break anyway.
-        # self.currentPage.insertText(self.insertPoint, " ", fontsize=fontsz)
-        # self.insertPoint.x += fitz.getTextlength(" ", fontsize=fontsz)
+        # self.currentPage.insertText(self.insertPoint, " ", fontSize=fontSize)
+        # self.insertPoint.x += fitz.getTextlength(" ", fontSize=fontSize)
 
     def linebreak(self, node=None, entering=None):
         self.cr("linebreak")
 
     def link(self, node, entering):
         if entering:
+            pushStyle("code", {"fontName": "cobi"})
+
             self.linkDestination = node.destination
         else:
             links = self.currentPage.getLinks()
@@ -159,6 +169,7 @@ class PdfRenderer(Renderer):
 
             self.linkDestination = None
             self.linkRects.clear()
+            popStyle()
 
     def image(self, node, entering):
         if entering:
@@ -183,32 +194,39 @@ class PdfRenderer(Renderer):
             self.cr("p-")
 
     def heading(self, node, entering):
-        global fontsz
+        global fontSize
         if entering:
+            pushStyle(
+                f"HEADING{node.level}", {"fontSize": headingfontSizes[node.level]}
+            )
             if self.insertPoint.y > margin + lineheight:
                 self.cr("H+")
-            fontsz += headingFontSizes[node.level]
+
         else:
             self.cr("H-")
-            fontsz -= headingFontSizes[node.level]
+            popStyle()
 
     def code(self, node, entering):
-        self.printLine(node.literal, fontname="cour")
+        pushStyle("code", {"fontName": "cour"})
+        self.printLine(node.literal)
+        popStyle()
 
     def code_block(self, node, entering):
         if entering:
+            pushStyle("code", {"fontName": "cour"})
             self.crHalfLine()
             self.indent += 32
             self.insertPoint.x += 32
             for line in node.literal.split("\n"):
                 if len(line):
-                    self.printLine(line, fontname="cour")
+                    self.printLine(line)
                     self.cr("")
 
             # else: # doesn't get called with entering = False?
             self.indent -= 32
             self.insertPoint.x -= 32
             self.cr("codeblock-")
+            popStyle()
 
     def thematic_break(self, node, entering):
         # attrs = self.attrs(node)
@@ -297,15 +315,25 @@ class PdfRenderer(Renderer):
             self.insertPoint = fitz.Point(margin + self.indent, margin + lineheight)
 
     def print(self, text):
-        self.currentPage.insertText(self.insertPoint, text, fontsize=fontsz)
-        self.insertPoint.x += fitz.getTextlength(text, fontsize=fontsz)
+        fontName = currentStyle().fontName
+        fontSize = currentStyle().fontSize
 
-    def printSegment(self, line, fontname, isLink=False):
         self.currentPage.insertText(
-            self.insertPoint, line, fontname=fontname, fontsize=fontsz
+            self.insertPoint, text, fontname=fontName, fontsize=fontSize
+        )
+        self.insertPoint.x += fitz.getTextlength(
+            text, fontname=fontName, fontsize=fontSize
+        )
+
+    def printSegment(self, line):
+        fontName = currentStyle().fontName
+        fontSize = currentStyle().fontSize
+
+        self.currentPage.insertText(
+            self.insertPoint, line, fontname=fontName, fontsize=fontSize
         )
         if self.linkDestination:
-            lineWidth = fitz.getTextlength(line, fontname=fontname, fontsize=fontsz)
+            lineWidth = fitz.getTextlength(line, fontname=fontName, fontsize=fontSize)
             self.linkRects.append(
                 fitz.Rect(
                     self.insertPoint.x,
@@ -317,3 +345,9 @@ class PdfRenderer(Renderer):
 
     def lit(self, s):
         self.print(s)
+
+    def document(self, node, entering):
+        if entering:
+            pushStyle("base", {"fontName": "Helvetica", "fontSize": 10, "indent": 0})
+        else:
+            popStyle()  # We should be done anyway

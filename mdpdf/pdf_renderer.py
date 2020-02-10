@@ -258,7 +258,11 @@ class PdfRenderer(Renderer):
             if self.list_data[-1]["type"] == "ordered":
                 self.printSegment(f" {node.list_data['start']} ")
             else:
-                self.printSegment("\u00b7 ")
+                pushStyle("zapfdingbats", {"fontName": "zadb"})
+                self.printSegment(
+                    "l"
+                )  # https://help.adobe.com/en_US/framemaker/2015/using/using-framemaker-2015/Appendix/frm_character_sets_cs/frm_character_sets_cs-5.htm
+                popStyle()
             self.indent += 16
             self.insertPoint.x = margin + self.indent
 

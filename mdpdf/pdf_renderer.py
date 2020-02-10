@@ -22,7 +22,7 @@ def potentially_unsafe(url):
 
 width, height = fitz.PaperSize("letter")  # choose paper format
 fontSize = 10  # choose font size of text
-headingfontSizes = [18, 16, 14, 12, 10]
+headingfontSizes = [18, 16, 14, 12, 10, 10, 10, 10]
 lineheight = fontSize * 1.2  # line height is 20% larger
 margin = 72
 
@@ -174,13 +174,10 @@ class PdfRenderer(Renderer):
         self.tag("strong" if entering else "/strong")
 
     def paragraph(self, node, entering):
-        grandparent = node.parent.parent
-        if grandparent is not None and grandparent.t == "list":
-            if grandparent.list_data["tight"]:
-                return
-
         if entering:
-            self.crHalfLine()
+            if node.parent.parent is not None and node.parent.parent.t != "list":
+                # if grandparent.list_data["tight"]:  # TODO maybe deal with tight/loose lists
+                self.crHalfLine()
         else:
             self.cr("p-")
 
@@ -241,12 +238,12 @@ class PdfRenderer(Renderer):
         if entering:
             self.list_data.append(node.list_data)
             self.crHalfLine()
-            self.indent += 32
-            self.insertPoint.x += 32
+            self.indent += 16
+            self.insertPoint.x = margin + self.indent
         else:
             self.list_data.pop()
-            self.indent -= 32
-            self.insertPoint.x -= 32
+            self.indent -= 16
+            self.insertPoint.x = margin + self.indent
 
     def item(self, node, entering):
         # attrs = self.attrs(node)
@@ -256,14 +253,20 @@ class PdfRenderer(Renderer):
                 self.printSegment(f" {node.list_data['start']} ")
             else:
                 self.printSegment("\u00b7 ")
+            self.indent += 16
+            self.insertPoint.x = margin + self.indent
+
         else:
             self.cr("li-")
+            self.indent -= 16
+            self.insertPoint.x = margin + self.indent
 
     def html_inline(self, node, entering):
-        if self.options.get("safe"):
-            self.lit("<!-- raw HTML omitted -->")
-        else:
-            self.lit(node.literal)
+        self.code(node, entering)
+        # if self.options.get("safe"):
+        #     self.lit("<!-- raw HTML omitted -->")
+        # else:
+        #     self.lit(node.literal)
 
     def html_block(self, node, entering):
         self.cr("block")
@@ -307,6 +310,14 @@ class PdfRenderer(Renderer):
         fontName = currentStyle().fontName
         fontSize = currentStyle().fontSize
         lineWidth = fitz.getTextlength(line, fontname=fontName, fontsize=fontSize)
+
+        # self.currentPage.insertText(
+        #     self.insertPoint,
+        #     str(self.insertPoint.x),
+        #     fontname="cobo",
+        #     fontsize=fontSize * 2,
+        # )
+
         self.currentPage.insertText(
             self.insertPoint, line, fontname=fontName, fontsize=fontSize
         )

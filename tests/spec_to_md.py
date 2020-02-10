@@ -7,6 +7,8 @@ def convertSpecExamples(infile, outfile):
     # a = r"````+ example\n((.*\n)+?)(?=^\.\n)(.*\n)((.*\n)+?)(?=(````+$))"
     b = r"````+ example\n(.*?)^\.(.*?````+)"
 
+    # Note : https://regex101.com/r/wsVyL9/1
+
     regex = re.compile(b, flags=re.DOTALL | re.MULTILINE,)
 
     text = open(infile, encoding="utf-8").read()

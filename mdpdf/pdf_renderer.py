@@ -218,7 +218,13 @@ class PdfRenderer(Renderer):
 
     def thematic_break(self, node, entering):
         # attrs = self.attrs(node)
-        self.cr("tb")
+        pntFrom = fitz.Point(self.insertPoint.x, self.insertPoint.y - lineheight / 2)
+        pntTo = fitz.Point(width - margin, pntFrom.y)
+        shape = self.currentPage.newShape()
+        shape.drawLine(pntFrom, pntTo)
+        shape.finish()
+        shape.commit()
+        self.cr("")
 
     def block_quote(self, node, entering):
         # attrs = self.attrs(node)

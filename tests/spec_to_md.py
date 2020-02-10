@@ -21,13 +21,13 @@ def convertSpecExamples(infile, outfile):
 
     s = r"\n```\nExample:\n\1\n```\n\1\n"
     s = r"""
-    ```
-    Example:
-    \1
-    ```
-    ---
-    \1
-    ---"""
+```
+Example:
+\1
+```
+---
+\1
+---"""
     newtext = regex.sub(s, text)
     open(outfile, "w", encoding="utf-8").write(newtext)
 

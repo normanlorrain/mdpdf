@@ -10,8 +10,18 @@ outdir.mkdir(exist_ok=True)
 
 def test_entire_spec():
     infilename = indir / "spec.txt"
-    outfilename = outdir / "spec.pdf"
+    outfilename = outdir / "spec_raw.pdf"
     convertMarkdown2Pdf(infilename, outfilename)
+
+
+def test_entire_spec_with_examples():
+    import spec_to_md
+
+    spec = indir / "spec.txt"
+    md = outdir / "spec.md"
+    pdf = outdir / "spec_examples.pdf"
+    spec_to_md.convertSpecExamples(spec, md)
+    convertMarkdown2Pdf(md, pdf)
 
 
 def test_quick():
@@ -22,5 +32,5 @@ def test_quick():
 
 if __name__ == "__main__":
 
-    test_entire_spec()
+    test_entire_spec_with_examples()
 

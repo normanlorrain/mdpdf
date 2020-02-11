@@ -98,11 +98,6 @@ A horizontal rule follows.
 
 ***
 
-
-Again, text is indented 4 spaces. (Put a blank line between each
-term and  its definition to spread things out more.)
-
-
 and images can be specified like so:
 
 ![example image](example-image.jpg "An exemplary image")

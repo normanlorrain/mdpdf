@@ -217,7 +217,7 @@ class PdfRenderer(Renderer):
             # else: # doesn't get called with entering = False?
             self.indent -= 32
             self.insertPoint.x -= 32
-            self.cr("codeblock-")
+            self.crHalfLine("codehalf-")
             style.pop()
 
     def thematic_break(self, node, entering):

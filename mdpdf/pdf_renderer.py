@@ -173,10 +173,14 @@ class PdfRenderer(Renderer):
 
     def paragraph(self, node, entering):
         if entering:
+            if node.parent is not None:
+                if node.parent.t == "block_quote":
+                    return
             if node.parent.parent is not None:
-                if node.parent.parent.t != "list":
+                if node.parent.parent.t == "list":
                     # if grandparent.list_data["tight"]:  # TODO maybe deal with tight/loose lists
-                    self.crHalfLine()
+                    return
+            self.crHalfLine("paragraphhalf+")
         else:
             # if node.parent.parent is None:  #
             #     self.cr("p-")
@@ -202,7 +206,7 @@ class PdfRenderer(Renderer):
     def code_block(self, node, entering):
         if entering:
             style.push(fontname=font.COURIER)
-            self.crHalfLine()
+            self.crHalfLine("codehalf+")
             self.indent += 32
             self.insertPoint.x += 32
             for line in node.literal.split("\n"):
@@ -229,25 +233,25 @@ class PdfRenderer(Renderer):
     def block_quote(self, node, entering):
         # attrs = self.attrs(node)
         if entering:
-            self.crHalfLine()
+            self.crHalfLine("bqhalf+")
             self.indent += 32
             self.insertPoint.x += 32
 
         else:
             self.indent -= 32
             self.insertPoint.x -= 32
-            self.cr("bq-")
+            self.crHalfLine("bqhalf-")
 
     def list(self, node, entering):
         # node.list_data
         if entering:
             self.list_data.append(node.list_data)
-            self.crHalfLine()
+            self.crHalfLine("listhalf+")
             self.indent += 16
             self.insertPoint.x = margin + self.indent
         else:
             self.list_data.pop()
-            self.crHalfLine()
+            self.crHalfLine("listhalf-")
             self.indent -= 16
             self.insertPoint.x = margin + self.indent
 
@@ -290,13 +294,14 @@ class PdfRenderer(Renderer):
     # Helper methods #
 
     def cr(self, note):
-        self.currentPage.insertText(self.insertPoint, note, fontsize=3)
+        # self.currentPage.insertText(self.insertPoint, note, fontsize=3)
         self.insertPoint.x = margin + self.indent
         self.insertPoint.y += lineheight
         if self.insertPoint.y > height - margin:
             self.newPage()
 
-    def crHalfLine(self):
+    def crHalfLine(self, note="half"):
+        # self.currentPage.insertText(self.insertPoint, note, fontsize=3)
         self.insertPoint.x = margin + self.indent
         self.insertPoint.y += lineheight / 2
         if self.insertPoint.y > height - margin:

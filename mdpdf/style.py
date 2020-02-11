@@ -1,15 +1,46 @@
+from . import font
+import copy
+
 _styleList = []
+_styleNumber = 0
 
 
-def pushStyle(name, styles):
+class Style:
+    def __init__(self, **kwargs):
+        if kwargs:
+            self.setAttributes(**kwargs)
+
+    def setAttributes(self, **kwargs):
+        for var, val in kwargs.items():
+            # print(var, val)
+            if var == "fontname":
+                self.font = font.Base14(val)
+            elif var == "fontsize":
+                self.fontsize = val
+            elif var == "italic":
+                self.font.setItalic(val)
+            elif var == "bold":
+                self.font.setBold(val)
+            elif var == "indent":
+                self.indent = val
+            else:
+                raise Exception("not valid Style attribute")
+
+
+def push(**kwargs):
     if len(_styleList):
-        cls = type(name, (_styleList[-1],), styles)
+        newStyle = copy.deepcopy(currentStyle())
+        newStyle.setAttributes(**kwargs)
     else:
-        cls = type(name, (), styles)
-    _styleList.append(cls)
+        newStyle = Style(**kwargs)
+
+    _styleList.append(newStyle)
 
 
-def popStyle():
+def pop():
+    global _styleNumber
+    _styleNumber -= 1
+
     _styleList.pop()
 
 
@@ -19,11 +50,12 @@ def currentStyle():
 
 if __name__ == "__main__":
 
-    pushStyle("base", {"fontName": "Helvetica", "fontSize": 12, "indent": 0})
+    push(fontname=font.HELVETICA, fontsize=12)
     style = currentStyle()
-    pushStyle("indend1", {"indent": 36})
+    push(indent=36)
+    push(italic=True)
     style = currentStyle()
-    popStyle()
+    pop()
     style = currentStyle()
 
     pass

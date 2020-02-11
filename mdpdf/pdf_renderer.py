@@ -9,7 +9,8 @@ import fitz
 import sys
 
 from .renderer import Renderer
-from .style import *
+from . import style
+from . import font
 
 
 reUnsafeProtocol = re.compile(r"^javascript:|vbscript:|file:|data:", re.IGNORECASE)
@@ -29,7 +30,7 @@ margin = 72
 # choose a nice mono-spaced font of the system, instead of 'Courier'.
 # To use a standard PDF base14 font, e.g. set font='Courier' and ffile=None
 ffile = "C:/windows/fonts/consola.ttf"  # font file
-font = "F0"  # fontName
+# font = "F0"  # fontName
 
 
 class PdfRenderer(Renderer):
@@ -91,11 +92,11 @@ class PdfRenderer(Renderer):
 
     # print a line that may break
     def printLine(self, line):
-        style = currentStyle()
-        fontName = style.fontName
-        fontSize = style.fontSize
+        sty = style.currentStyle()
+        fontName = sty.font.name
+        fontSize = sty.fontsize
         lineWidth = fitz.getTextlength(line, fontName, fontSize)
-        budget = width - margin - self.insertPoint.x
+        budget = width - margin - self.indent - self.insertPoint.x
         if lineWidth < budget:
             self.printSegment(line)
         else:
@@ -121,8 +122,9 @@ class PdfRenderer(Renderer):
     # Softbreaks are just CRs in the input, within paragraph
     # it becomes a space.
     def softbreak(self, node=None, entering=None):
-        fontName = currentStyle().fontName
-        fontSize = currentStyle().fontSize
+        sty = style.currentStyle()
+        fontName = sty.font.name
+        fontSize = sty.fontsize
         lineWidth = fitz.getTextlength(" ", fontname=fontName, fontsize=fontSize)
         budget = width - margin - self.insertPoint.x
         if lineWidth < budget:
@@ -138,7 +140,7 @@ class PdfRenderer(Renderer):
     def link(self, node, entering):
         if entering:
             # self.softbreak()  # Add a space before the link
-            pushStyle("code", {"fontName": "cobi"})
+            style.push(fontname=font.COURIER)
 
             self.linkDestination = node.destination
         else:
@@ -160,7 +162,7 @@ class PdfRenderer(Renderer):
 
             self.linkDestination = None
             self.linkRects.clear()
-            popStyle()
+            style.pop()
 
     def image(self, node, entering):
         if entering:
@@ -184,24 +186,22 @@ class PdfRenderer(Renderer):
     def heading(self, node, entering):
         global fontSize
         if entering:
-            pushStyle(
-                f"HEADING{node.level}", {"fontSize": headingfontSizes[node.level]}
-            )
+            style.push(fontname=font.HELVETICA, fontsize=headingfontSizes[node.level])
             if self.insertPoint.y > margin + lineheight:
                 self.cr("H+")
 
         else:
             self.cr("H-")
-            popStyle()
+            style.pop()
 
     def code(self, node, entering):
-        pushStyle("code", {"fontName": "cour"})
+        style.push(fontname=font.COURIER)
         self.printLine(node.literal)
-        popStyle()
+        style.pop()
 
     def code_block(self, node, entering):
         if entering:
-            pushStyle("code", {"fontName": "cour"})
+            style.push(fontname=font.COURIER)
             self.crHalfLine()
             self.indent += 32
             self.insertPoint.x += 32
@@ -214,7 +214,7 @@ class PdfRenderer(Renderer):
             self.indent -= 32
             self.insertPoint.x -= 32
             self.cr("codeblock-")
-            popStyle()
+            style.pop()
 
     def thematic_break(self, node, entering):
         # attrs = self.attrs(node)
@@ -240,7 +240,6 @@ class PdfRenderer(Renderer):
 
     def list(self, node, entering):
         # node.list_data
-
         if entering:
             self.list_data.append(node.list_data)
             self.crHalfLine()
@@ -258,11 +257,11 @@ class PdfRenderer(Renderer):
             if self.list_data[-1]["type"] == "ordered":
                 self.printSegment(f" {node.list_data['start']} ")
             else:
-                pushStyle("zapfdingbats", {"fontName": "zadb"})
+                style.push(fontname=font.ZAPFDINGBATS)
                 self.printSegment(
                     "l"
-                )  # https://help.adobe.com/en_US/framemaker/2015/using/using-framemaker-2015/Appendix/frm_character_sets_cs/frm_character_sets_cs-5.htm
-                popStyle()
+                )  # Bullet:  https://help.adobe.com/en_US/framemaker/2015/using/using-framemaker-2015/Appendix/frm_character_sets_cs/frm_character_sets_cs-5.htm
+                style.pop()
             self.indent += 16
             self.insertPoint.x = margin + self.indent
 
@@ -271,40 +270,27 @@ class PdfRenderer(Renderer):
             self.indent -= 16
             self.insertPoint.x = margin + self.indent
 
+    # From spec: Text between < and > that looks like an HTML tag is parsed
+    # as a raw HTML tag and will be rendered in HTML without escaping. Tag
+    # and attribute names are not limited to current HTML tags, so custom
+    # tags (and even, say, DocBook tags) may be used.
+
     def html_inline(self, node, entering):
-        self.code(node, entering)
-        # if self.options.get("safe"):
-        #     self.lit("<!-- raw HTML omitted -->")
-        # else:
-        #     self.lit(node.literal)
+        self.code(node, entering)  # TODO maybe warn user?
 
     def html_block(self, node, entering):
-        self.cr("block")
-
-        self.lit(node.literal)
-        self.cr("block")
+        self.code_block(node, entering)  # TODO maybe warn user?
 
     def custom_inline(self, node, entering):
-        if entering and node.on_enter:
-            self.lit(node.on_enter)
-        elif (not entering) and node.on_exit:
-            self.lit(node.on_exit)
+        self.code(node, entering)  # TODO maybe warn user?
 
     def custom_block(self, node, entering):
-        self.cr()
-        if entering and node.on_enter:
-            self.lit(node.on_enter)
-        elif (not entering) and node.on_exit:
-            self.lit(node.on_exit)
-        self.cr()
+        self.code(node, entering)  # TODO maybe warn user?
 
     # Helper methods #
 
-    def out(self, s):
-        self.lit(self.escape(s))
-
     def cr(self, note):
-        self.currentPage.insertText(self.insertPoint, note, fontsize=3)
+        # self.currentPage.insertText(self.insertPoint, note, fontsize=3)
         self.insertPoint.x = margin + self.indent
         self.insertPoint.y += lineheight
         if self.insertPoint.y > height - margin:
@@ -317,8 +303,9 @@ class PdfRenderer(Renderer):
             self.newPage()
 
     def printSegment(self, line):
-        fontName = currentStyle().fontName
-        fontSize = currentStyle().fontSize
+        sty = style.currentStyle()
+        fontName = sty.font.name
+        fontSize = sty.fontsize
         lineWidth = fitz.getTextlength(line, fontname=fontName, fontsize=fontSize)
 
         # self.currentPage.insertText(
@@ -342,19 +329,16 @@ class PdfRenderer(Renderer):
             )
         self.insertPoint.x += lineWidth
 
-    def lit(self, s):
-        self.printSegment(s)
-
     def document(self, node, entering):
         if entering:
-            pushStyle("base", {"fontName": "Helvetica", "fontSize": 10, "indent": 0})
+            style.push(fontname=font.TIMES, fontsize=10, indent=0)
         else:
-            popStyle()  # We should be done anyway
+            style.pop()  # We should be done anyway
 
     def newPage(self):
         link = self.currentPage.firstLink
         while link:
-            link.setBorder(None)
+            link.setBorder({"width": 0.5, "style": "U"})
             link = link.next
 
         self.currentPage = self.doc.newPage(-1, width, height)

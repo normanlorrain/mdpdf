@@ -139,13 +139,9 @@ class PdfRenderer(Renderer):
 
     def link(self, node, entering):
         if entering:
-            # self.softbreak()  # Add a space before the link
             style.push(fontname=font.COURIER)
-
-            self.linkDestination = node.destination
+            self.linkDestination = node.destination  # TODO: deal with "#fragments"
         else:
-            # self.softbreak()  # Add a space after the link
-            links = self.currentPage.getLinks()
             # the link on the page can be split over several words & lines
             # So we need to create the clickable areas.
             for rect in self.linkRects:
@@ -177,10 +173,14 @@ class PdfRenderer(Renderer):
 
     def paragraph(self, node, entering):
         if entering:
-            if node.parent.parent is not None and node.parent.parent.t != "list":
-                # if grandparent.list_data["tight"]:  # TODO maybe deal with tight/loose lists
-                self.crHalfLine()
+            if node.parent.parent is not None:
+                if node.parent.parent.t != "list":
+                    # if grandparent.list_data["tight"]:  # TODO maybe deal with tight/loose lists
+                    self.crHalfLine()
         else:
+            # if node.parent.parent is None:  #
+            #     self.cr("p-")
+            # elif node.parent.parent.t == "list":
             self.cr("p-")
 
     def heading(self, node, entering):
@@ -247,6 +247,7 @@ class PdfRenderer(Renderer):
             self.insertPoint.x = margin + self.indent
         else:
             self.list_data.pop()
+            self.crHalfLine()
             self.indent -= 16
             self.insertPoint.x = margin + self.indent
 
@@ -266,7 +267,6 @@ class PdfRenderer(Renderer):
             self.insertPoint.x = margin + self.indent
 
         else:
-            self.cr("li-")
             self.indent -= 16
             self.insertPoint.x = margin + self.indent
 
@@ -290,7 +290,7 @@ class PdfRenderer(Renderer):
     # Helper methods #
 
     def cr(self, note):
-        # self.currentPage.insertText(self.insertPoint, note, fontsize=3)
+        self.currentPage.insertText(self.insertPoint, note, fontsize=3)
         self.insertPoint.x = margin + self.indent
         self.insertPoint.y += lineheight
         if self.insertPoint.y > height - margin:
@@ -314,7 +314,7 @@ class PdfRenderer(Renderer):
         #     fontname="cobo",
         #     fontsize=fontSize * 2,
         # )
-
+        print("printSegment", line)
         self.currentPage.insertText(
             self.insertPoint, line, fontname=fontName, fontsize=fontSize
         )
@@ -334,13 +334,16 @@ class PdfRenderer(Renderer):
             style.push(fontname=font.TIMES, fontsize=10, indent=0)
         else:
             style.pop()  # We should be done anyway
+            self.finishPage()
 
-    def newPage(self):
+    def finishPage(self):
         link = self.currentPage.firstLink
         while link:
             link.setBorder({"width": 0.5, "style": "U"})
             link = link.next
 
+    def newPage(self):
+        self.finishPage()
         self.currentPage = self.doc.newPage(-1, width, height)
         self.insertPoint = fitz.Point(margin + self.indent, margin + lineheight)
 

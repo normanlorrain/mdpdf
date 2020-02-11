@@ -32,5 +32,5 @@ def test_quick():
 
 if __name__ == "__main__":
 
-    test_entire_spec_with_examples()
+    test_quick()
 

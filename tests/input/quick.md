@@ -100,7 +100,7 @@ A horizontal rule follows.
 
 and images can be specified like so:
 
-![example image](example-image.jpg "An exemplary image")
+![Example image:](example-image.jpg "An exemplary image")
 
 
 And note that you can backslash-escape any punctuation characters

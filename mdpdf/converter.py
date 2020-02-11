@@ -12,5 +12,6 @@ def convertMarkdown2Pdf(inputFileName, outputFileName):
     entireFile = mdFile.read()
     ast = parser.parse(entireFile)
 
-    renderer = PdfRenderer(outputFileName)
+    inputDir = inputFileName.parent
+    renderer = PdfRenderer(inputDir, outputFileName)
     renderer.render(ast)

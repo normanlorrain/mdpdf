@@ -7,6 +7,8 @@ import re
 from builtins import str
 import fitz
 import sys
+from pathlib import Path
+
 
 from .renderer import Renderer
 from . import style
@@ -34,8 +36,9 @@ ffile = "C:/windows/fonts/consola.ttf"  # font file
 
 
 class PdfRenderer(Renderer):
-    def __init__(self, pdf):
+    def __init__(self, indir, pdf):
         self.list_data = list()  # to store the states of ordered/unordered list
+        self.indir = indir  # Directory containing markdown (and images)
         self.pdf = pdf
         self.doc = fitz.open()
         self.currentPage = self.doc.newPage(-1, width, height)
@@ -161,8 +164,18 @@ class PdfRenderer(Renderer):
             style.pop()
 
     def image(self, node, entering):
+        from . import image
+
         if entering:
-            self.printSegment(f"IMAGE:{node.destination}")
+            imagefile = Path(self.indir) / node.destination
+            imageW, imageH = image.get_image_size(str(imagefile))
+            x, y = self.insertPoint.x, self.insertPoint.y
+            if imageH > height - y:
+                self.newPage()
+            rect = fitz.Rect(self.insertPoint, width - margin, y + imageH)
+            self.currentPage.insertImage(rect, str(imagefile))
+            self.insertPoint.y += imageH
+
         # node.title
 
     def emph(self, node, entering):

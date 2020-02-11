@@ -142,7 +142,7 @@ class PdfRenderer(Renderer):
 
     def link(self, node, entering):
         if entering:
-            style.push(fontname=font.COURIER)
+            # style.push(fontname=font.COURIER)
             self.linkDestination = node.destination  # TODO: deal with "#fragments"
         else:
             # the link on the page can be split over several words & lines
@@ -161,7 +161,7 @@ class PdfRenderer(Renderer):
 
             self.linkDestination = None
             self.linkRects.clear()
-            style.pop()
+            # style.pop()
 
     def image(self, node, entering):
         from . import image

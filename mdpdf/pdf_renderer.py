@@ -36,9 +36,9 @@ ffile = "C:/windows/fonts/consola.ttf"  # font file
 
 
 class PdfRenderer(Renderer):
-    def __init__(self, indir, pdf):
+    def __init__(self, pdf):
         self.list_data = list()  # to store the states of ordered/unordered list
-        self.indir = indir  # Directory containing markdown (and images)
+        self.indir = pdf.parent  # Directory containing markdown (and images)
         self.pdf = pdf
         self.doc = fitz.open()
         self.currentPage = self.doc.newPage(-1, width, height)
@@ -51,6 +51,9 @@ class PdfRenderer(Renderer):
         )
         self.linkDestination = None
         self.linkRects = []
+
+    def setInputDir(self, indir):
+        self.indir = indir
 
     def __del__(self):
         m = {
@@ -167,14 +170,18 @@ class PdfRenderer(Renderer):
         from . import image
 
         if entering:
-            imagefile = Path(self.indir) / node.destination
-            imageW, imageH = image.get_image_size(str(imagefile))
-            x, y = self.insertPoint.x, self.insertPoint.y
-            if imageH > height - y:
-                self.newPage()
-            rect = fitz.Rect(self.insertPoint, width - margin, y + imageH)
-            self.currentPage.insertImage(rect, str(imagefile))
-            self.insertPoint.y += imageH
+            try:
+                imagefile = Path(self.indir) / node.destination
+                imageW, imageH = image.get_image_size(str(imagefile))
+                x, y = self.insertPoint.x, self.insertPoint.y
+                if imageH > height - y:
+                    self.newPage()
+                rect = fitz.Rect(self.insertPoint, width - margin, y + imageH)
+                self.currentPage.insertImage(rect, str(imagefile))
+                self.insertPoint.y += imageH
+            except FileNotFoundError as err:
+                print(f"{err}")
+                raise  # TODO: print node/line number
 
         # node.title
 

@@ -7830,7 +7830,7 @@ The link text may contain inline content:
 
 
 ```````````````````````````````` example
-[![moon](moon.jpg)](/uri)
+[![moon](../input/moon.jpg)](/uri)
 .
 <p><a href="/uri"><img src="moon.jpg" alt="moon" /></a></p>
 ````````````````````````````````
@@ -7985,7 +7985,7 @@ The link text may contain inline content:
 
 
 ```````````````````````````````` example
-[![moon](moon.jpg)][ref]
+[![moon](../input/moon.jpg)][ref]
 
 [ref]: /uri
 .

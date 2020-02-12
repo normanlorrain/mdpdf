@@ -38,7 +38,7 @@ ffile = "C:/windows/fonts/consola.ttf"  # font file
 class PdfRenderer(Renderer):
     def __init__(self, pdf):
         self.list_data = list()  # to store the states of ordered/unordered list
-        self.indir = pdf.parent  # Directory containing markdown (and images)
+        self.indir = None  # TODO: put this in render() Directory containing markdown (and images)
         self.pdf = pdf
         self.doc = fitz.open()
         self.currentPage = self.doc.newPage(-1, width, height)
@@ -65,10 +65,12 @@ class PdfRenderer(Renderer):
             "subject": "subject here",
             "author": "author here",
         }
-
-        self.doc.setMetadata(m)
-        self.doc.save(str(self.pdf), garbage=4, deflate=True)
-        self.doc.close()
+        # Close the file.  If an exception occured, the attribute might not be present,
+        # so check first.
+        if hasattr(self, "doc"):
+            self.doc.setMetadata(m)
+            self.doc.save(str(self.pdf), garbage=4, deflate=True)
+            self.doc.close()
 
     def escape(self, text):
         return text

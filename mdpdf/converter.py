@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import commonmark
 import fitz  # pymupdf
 
@@ -10,16 +12,18 @@ class Converter:
         self.renderer = PdfRenderer(outputFileName)
 
     def convert(self, inputFile):
+        indir = Path(inputFile).parent.resolve()
+        self.renderer.setInputDir(indir)
+
         mdFile = open(inputFile, "r", encoding="utf-8")
         entireFile = mdFile.read()
         ast = self.parser.parse(entireFile)
         self.renderer.render(ast)
 
     def convertSingle(self, inputFileName):
-        self.renderer.setInputDir(inputFileName.parent)
         self.convert(inputFileName)
 
-    def convertMultiple(inputFileNames):
+    def convertMultiple(self, inputFileNames):
         for i in inputFileNames:
             self.convert(i)
 

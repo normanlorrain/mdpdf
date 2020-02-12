@@ -12,7 +12,7 @@ Itcan be used as a handy facility for running the task from a command line.
 
 """
 import click
-from mdpdf.converter import convertMarkdown2Pdf
+from mdpdf.converter import Converter
 
 
 @click.command()
@@ -27,5 +27,6 @@ def cli(output: str, header: str, footer: str, inputs):
         ctx.fail("No output specified.")
     print(output, header, footer, inputs)
 
-    convertMarkdown2Pdf(inputs, output)
+    converter = Converter(output)
+    converter.convertMultiple(inputs)
 

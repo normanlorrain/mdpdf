@@ -54,3 +54,19 @@ def test_hello_displays_expected_message():
     assert 'mdpdf' in result.output.strip(), \
         "'Hello' messages should contain the CLI name."
     # fmt: on
+
+
+def test_cli():
+    runner: CliRunner = CliRunner()
+    result: Result = runner.invoke(
+        cli.cli, ["-o", "output", "-h", ",bar,baz", "-f", "baz,foo,bar", "aaaa"]
+    )
+    result: Result = runner.invoke(
+        cli.cli,
+        ["-o", "output", "-h", ",bar,baz", "-f", "baz,foo,bar", "aaaa", "bbbb", "cccc"],
+    )
+
+
+if __name__ == "__main__":
+    test_cli()
+    pass

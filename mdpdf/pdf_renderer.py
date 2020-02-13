@@ -172,6 +172,12 @@ class PdfRenderer(Renderer):
         from . import image
 
         if entering:
+            # TODO: consider using the alt attribute to pass the rectangle dimensions/alignment/etc. https://www.w3schools.com/tags/att_img_alt.asp
+            # This means the next node would need to be "peaked" at, since that's how
+            # commonmark parses it.
+            # Also, the text callback would have to check if it's the child of an image node, OR, this function would
+            # jump to the next next child somehow (return??  ) /TODO
+
             try:
                 imagefile = Path(self.indir) / node.destination
                 imageW, imageH = image.get_image_size(str(imagefile))

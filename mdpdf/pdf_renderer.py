@@ -175,11 +175,23 @@ class PdfRenderer(Renderer):
             try:
                 imagefile = Path(self.indir) / node.destination
                 imageW, imageH = image.get_image_size(str(imagefile))
-                x, y = self.insertPoint.x, self.insertPoint.y
-                if imageH > height - y:
+                print(imagefile, imageW, imageH)
+
+                if imageH > height - self.insertPoint.y:
                     self.newPage()
-                rect = fitz.Rect(self.insertPoint, width - margin, y + imageH)
-                self.currentPage.insertImage(rect, str(imagefile))
+
+                if imageW > (width - (2 * margin)):
+                    rect = fitz.Rect(
+                        self.insertPoint, width - margin, self.insertPoint.y + imageH
+                    )
+                else:
+                    self.insertPoint.x = (width - imageW) / 2
+                    rect = fitz.Rect(
+                        self.insertPoint,
+                        self.insertPoint.x + imageW,
+                        self.insertPoint.y + imageH,
+                    )
+                self.currentPage.insertImage(rect, str(imagefile), keep_proportion=True)
                 self.insertPoint.y += imageH
             except FileNotFoundError as err:
                 print(f"{err}")

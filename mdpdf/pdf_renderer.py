@@ -41,16 +41,8 @@ class PdfRenderer(Renderer):
         self.indir = None  # TODO: put this in render() Directory containing markdown (and images)
         self.pdf = pdf
         self.doc = fitz.open()
-        self.currentPage = self.doc.newPage(-1, width, height)
         self.disable_tags = 0
         self.last_out = "\n"
-        self.indent = 0
-        self.insertPoint = fitz.Point(margin, margin + lineheight)
-        self.insertRectangle = fitz.Rect(
-            margin, margin + lineheight, width - margin, height - margin,
-        )
-        self.linkDestination = None
-        self.linkRects = []
 
     def setInputDir(self, indir):
         self.indir = indir
@@ -206,10 +198,16 @@ class PdfRenderer(Renderer):
         # node.title
 
     def emph(self, node, entering):
-        self.tag("em" if entering else "/em")
+        if entering:
+            style.push(italic=True)
+        else:
+            style.pop()
 
     def strong(self, node, entering):
-        self.tag("strong" if entering else "/strong")
+        if entering:
+            style.push(bold=True)
+        else:
+            style.pop()
 
     def paragraph(self, node, entering):
         if entering:
@@ -376,6 +374,12 @@ class PdfRenderer(Renderer):
 
     def document(self, node, entering):
         if entering:
+            self.indent = 0
+            self.insertPoint = fitz.Point(margin, margin + lineheight)
+            self.linkDestination = None
+            self.linkRects = []
+
+            self.currentPage = self.doc.newPage(-1, width, height)
             style.push(fontname=font.TIMES, fontsize=10, indent=0)
         else:
             style.pop()  # We should be done anyway

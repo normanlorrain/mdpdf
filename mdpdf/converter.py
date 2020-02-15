@@ -13,12 +13,11 @@ class Converter:
 
     def convert(self, inputFile):
         indir = Path(inputFile).parent.resolve()
-        self.renderer.setInputDir(indir)
 
         mdFile = open(inputFile, "r", encoding="utf-8")
         entireFile = mdFile.read()
         ast = self.parser.parse(entireFile)
-        self.renderer.render(ast)
+        self.renderer.render(ast, indir)
 
     def convertSingle(self, inputFileName):
         self.convert(inputFileName)
@@ -36,5 +35,4 @@ def convertMarkdown2Pdf(inputFileName, outputFileName):
     ast = parser.parse(entireFile)
 
     renderer = PdfRenderer(outputFileName)
-    renderer.setInputDir(inputFileName.parent)
-    renderer.render(ast)
+    renderer.render(ast, inputFileName.parent)

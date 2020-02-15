@@ -41,10 +41,6 @@ class PdfRenderer:
         self.pdf = pdf
         self.doc = fitz.open()
         self.disable_tags = 0
-        self.last_out = "\n"
-
-    def setInputDir(self, indir):
-        self.indir = indir
 
     def __del__(self):
         m = {
@@ -63,40 +59,22 @@ class PdfRenderer:
             self.doc.save(str(self.pdf), garbage=4, deflate=True)
             self.doc.close()
 
-    def render(self, ast):
+    def render(self, ast, indir):
         """Walks the AST and calls member methods for each Node type.
 
         @param ast {Node} The root of the abstract syntax tree.
         """
-
-        self.buf = ""
-        self.last_out = "\n"
-
+        self.indir = indir
         for node, entering in ast.walker():
             getattr(self, node.t)(node, entering)
 
-        return self.buf
+        return
 
     def escape(self, text):
         return text
 
     def tag(self, name, attrs=None, selfclosing=None):
-        """Helper function to produce an HTML tag."""
-        if self.disable_tags > 0:
-            return
-
-        self.buf += "<" + name
-        # if attrs and len(attrs) > 0:
-        #     for attrib in attrs:
-        #         self.buf += " " + attrib[0] + '="' + attrib[1] + '"'
-
-        if selfclosing:
-            self.buf += " /"
-
-        self.buf += ">"
-        self.last_out = ">"
-
-    # Node methods #
+        return
 
     def text(self, node, entering=None):
         # TODO Word > printable area

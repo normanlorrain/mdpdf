@@ -10,7 +10,6 @@ import sys
 from pathlib import Path
 
 
-from .renderer import Renderer
 from . import style
 from . import font
 
@@ -35,7 +34,7 @@ ffile = "C:/windows/fonts/consola.ttf"  # font file
 # font = "F0"  # fontName
 
 
-class PdfRenderer(Renderer):
+class PdfRenderer:
     def __init__(self, pdf):
         self.list_data = list()  # to store the states of ordered/unordered list
         self.indir = None  # TODO: put this in render() Directory containing markdown (and images)
@@ -63,6 +62,20 @@ class PdfRenderer(Renderer):
             self.doc.setMetadata(m)
             self.doc.save(str(self.pdf), garbage=4, deflate=True)
             self.doc.close()
+
+    def render(self, ast):
+        """Walks the AST and calls member methods for each Node type.
+
+        @param ast {Node} The root of the abstract syntax tree.
+        """
+
+        self.buf = ""
+        self.last_out = "\n"
+
+        for node, entering in ast.walker():
+            getattr(self, node.t)(node, entering)
+
+        return self.buf
 
     def escape(self, text):
         return text

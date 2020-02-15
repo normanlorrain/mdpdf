@@ -1,7 +1,5 @@
 # inspired from https://github.com/readthedocs/commonmark.py/blob/master/commonmark/render/html.py
-
-from __future__ import unicode_literals
-
+# https://github.com/readthedocs/commonmark.py/blob/master/commonmark/render/renderer.py
 
 import re
 from builtins import str
@@ -14,24 +12,11 @@ from . import style
 from . import font
 
 
-reUnsafeProtocol = re.compile(r"^javascript:|vbscript:|file:|data:", re.IGNORECASE)
-reSafeDataProtocol = re.compile(r"^data:image\/(?:png|gif|jpeg|webp)", re.IGNORECASE)
-
-
-def potentially_unsafe(url):
-    return re.search(reUnsafeProtocol, url) and (not re.search(reSafeDataProtocol, url))
-
-
 width, height = fitz.PaperSize("letter")  # choose paper format
 fontSize = 10  # choose font size of text
 headingfontSizes = [18, 16, 14, 12, 10, 10, 10, 10]
 lineheight = fontSize * 1.2  # line height is 20% larger
 margin = 72
-
-# choose a nice mono-spaced font of the system, instead of 'Courier'.
-# To use a standard PDF base14 font, e.g. set font='Courier' and ffile=None
-ffile = "C:/windows/fonts/consola.ttf"  # font file
-# font = "F0"  # fontName
 
 
 class PdfRenderer:

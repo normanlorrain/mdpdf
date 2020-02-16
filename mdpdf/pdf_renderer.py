@@ -10,6 +10,8 @@ from pathlib import Path
 
 from . import style
 from . import font
+from . import properties
+from .headfoot import Header, Footer
 
 
 width, height = fitz.PaperSize("letter")  # choose paper format
@@ -28,19 +30,11 @@ class PdfRenderer:
         self.disable_tags = 0
 
     def __del__(self):
-        m = {
-            "creationDate": fitz.getPDFnow(),  # current timestamp
-            "modDate": fitz.getPDFnow(),  # current timestamp
-            "creator": "mdpdf",
-            "producer": "Markdown to PDF",
-            "title": "title goes here",
-            "subject": "subject here",
-            "author": "author here",
-        }
+
         # Close the file.  If an exception occured, the attribute might not be present,
         # so check first.
         if hasattr(self, "doc"):
-            self.doc.setMetadata(m)
+            self.doc.setMetadata(properties.document)
             self.doc.save(str(self.pdf), garbage=4, deflate=True)
             self.doc.close()
 
@@ -358,17 +352,61 @@ class PdfRenderer:
             self.currentPage = self.doc.newPage(-1, width, height)
             style.push(fontname=font.TIMES, fontsize=10, indent=0)
         else:
-            style.pop()  # We should be done anyway
             self.finishPage()
+            style.pop()  # We should be done anyway
 
     def finishPage(self):
         link = self.currentPage.firstLink
         while link:
             link.setBorder({"width": 0.5, "style": "U"})
             link = link.next
+        self.insertPoint.y = margin / 2 + lineheight / 2
+        l = Header.left(properties)
+        m = Header.mid(properties)
+        r = Header.right(properties)
+        self.printLeft(l)
+        self.printCentre(m)
+        self.printRight(r)
+
+        pntFrom = fitz.Point(margin, 0.75 * margin)
+        pntTo = fitz.Point(width - margin, 0.75 * margin)
+        shape = self.currentPage.newShape()
+        shape.drawLine(pntFrom, pntTo)
+        shape.finish()
+        shape.commit()
 
     def newPage(self):
         self.finishPage()
         self.currentPage = self.doc.newPage(-1, width, height)
         self.insertPoint = fitz.Point(margin + self.indent, margin + lineheight)
+
+    def printLeft(self, line):
+        sty = style.currentStyle()
+        fontName = sty.font.name
+        fontSize = sty.fontsize / 2
+        lineWidth = fitz.getTextlength(line, fontname=fontName, fontsize=fontSize)
+        self.insertPoint.x = margin
+        self.currentPage.insertText(
+            self.insertPoint, line, fontname=fontName, fontsize=fontSize
+        )
+
+    def printCentre(self, line):
+        sty = style.currentStyle()
+        fontName = sty.font.name
+        fontSize = sty.fontsize / 2
+        lineWidth = fitz.getTextlength(line, fontname=fontName, fontsize=fontSize)
+        self.insertPoint.x = width / 2 - lineWidth / 2
+        self.currentPage.insertText(
+            self.insertPoint, line, fontname=fontName, fontsize=fontSize
+        )
+
+    def printRight(self, line):
+        sty = style.currentStyle()
+        fontName = sty.font.name
+        fontSize = sty.fontsize / 2
+        lineWidth = fitz.getTextlength(line, fontname=fontName, fontsize=fontSize)
+        self.insertPoint.x = width - margin - lineWidth
+        self.currentPage.insertText(
+            self.insertPoint, line, fontname=fontName, fontsize=fontSize
+        )
 

@@ -24,12 +24,15 @@ class Footer(Base):
     pass
 
 
-class MetaData(object):
-    pass
+Header.setFmt("{page},{title},{date}")
+Footer.setFmt(",,")
 
 
 if __name__ == "__main__":
     Header.setFmt("{date},blah,{page}")
+
+    class MetaData(object):
+        pass
 
     metaData = MetaData()
     metaData.date = "2020-02-15"

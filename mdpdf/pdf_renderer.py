@@ -370,10 +370,10 @@ class PdfRenderer:
 
         pntFrom = fitz.Point(margin, 0.75 * margin)
         pntTo = fitz.Point(width - margin, 0.75 * margin)
-        shape = self.currentPage.newShape()
-        shape.drawLine(pntFrom, pntTo)
-        shape.finish()
-        shape.commit()
+        # shape = self.currentPage.newShape()
+        self.currentPage.drawLine(pntFrom, pntTo, width=1)
+        # shape.finish()
+        # shape.commit()
 
     def newPage(self):
         self.finishPage()

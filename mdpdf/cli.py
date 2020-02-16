@@ -13,6 +13,7 @@ Itcan be used as a handy facility for running the task from a command line.
 """
 import click
 from mdpdf.converter import Converter
+from mdpdf.headfoot import Header, Footer
 
 
 @click.command()
@@ -25,7 +26,9 @@ def cli(output: str, header: str, footer: str, inputs):
     if not output:
         ctx = click.get_current_context()
         ctx.fail("No output specified.")
-    print(output, header, footer, inputs)
+
+    Header.setFmt(header)
+    Footter.setFmt(footer)
 
     converter = Converter(output)
     converter.convertMultiple(inputs)

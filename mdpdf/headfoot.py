@@ -4,23 +4,23 @@ class Base:
         self._left, self._mid, self._right = fmt.split(",")
 
     @classmethod
-    def left(cls, metaData):
-        return cls._left.format(**metaData.__dict__)
+    def left(cls, m):
+        return cls._left.format(**m.__dict__)
 
     @classmethod
-    def mid(cls, metaData):
-        return cls._mid.format(**metaData.__dict__)
+    def mid(cls, m):
+        return cls._mid.format(**m.__dict__)
 
     @classmethod
-    def right(cls, metaData):
-        return cls._right.format(**metaData.__dict__)
+    def right(cls, m):
+        return cls._right.format(**m.__dict__)
 
 
 class Header(Base):
     pass
 
 
-class Foot(Base):
+class Footer(Base):
     pass
 
 

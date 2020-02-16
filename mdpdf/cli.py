@@ -27,8 +27,10 @@ def cli(output: str, header: str, footer: str, inputs):
         ctx = click.get_current_context()
         ctx.fail("No output specified.")
 
-    Header.setFmt(header)
-    Footter.setFmt(footer)
+    if header:
+        Header.setFmt(header)
+    if footer:
+        Footer.setFmt(footer)
 
     converter = Converter(output)
     converter.convertMultiple(inputs)

@@ -21,20 +21,46 @@ from mdpdf.headfoot import Header, Footer
 
 
 @click.command()
-@click.option("--output", "-o", help="Destination for file output.")
-@click.option("--header", "-h", help="Header template.")
-@click.option("--footer", "-f", help="Footer template.")
+@click.option(
+    "--output", "-o", metavar="<filename>", help="Destination for file output."
+)
+@click.option(
+    "--header",
+    "-h",
+    metavar="<template>",
+    help="""Sets the header template.
+""",
+)
+@click.option("--footer", "-f", metavar="<template>", help="Footer template.")
 @click.argument("inputs", nargs=-1)
 def cli(output: str, header: str, footer: str, inputs):
-    """Convert Markdown to PDF.."""
+    """Convert Markdown to PDF.
+
+\b    
+For options below, <template> is a quoted, comma-
+delimited string, containing the left, centre, 
+and right, header fields. Format is 
+  "[left],[middle],[right]" 
+
+\b
+Possible values to put here are: 
+  - Empty string
+  - Arbitrary text
+  - {page} current page number 
+  - {header} last top-level body text heading
+  - {date} current date
+"""
     ctx = click.get_current_context()
     if not output:
         ctx.fail("No output specified.")
 
-    if header:
-        Header.setFmt(header)
-    if footer:
-        Footer.setFmt(footer)
+    try:
+        if header:
+            Header.setFmt(header)
+        if footer:
+            Footer.setFmt(footer)
+    except Exception as e:
+        ctx.fail(f"{e} in header/footer template.")
 
     if inputs:
         globlist = []

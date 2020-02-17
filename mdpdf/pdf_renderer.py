@@ -205,7 +205,8 @@ class PdfRenderer:
             style.push(fontname=font.HELVETICA, fontsize=headingfontSizes[node.level])
             if self.insertPoint.y > margin + lineheight:
                 self.cr("H+")
-
+            if node.level == 1:
+                properties.heading = node.first_child.literal
         else:
             self.cr("H-")
             style.pop()
@@ -364,6 +365,9 @@ class PdfRenderer:
         while link:
             link.setBorder({"width": 0.5, "style": "U"})
             link = link.next
+
+        # Generate Header and Footer
+        properties.page = self.doc.pageCount
 
         style.push(fontname=font.HELVETICA, fontsize=8, indent=0)
         self.insertPoint.y = margin / 2 + lineheight / 2

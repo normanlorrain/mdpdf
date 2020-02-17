@@ -20,9 +20,13 @@ headingfontSizes = [18, 16, 14, 12, 10, 10, 10, 10]
 lineheight = fontSize * 1.2  # line height is 20% larger
 margin = 72
 
-imageWidthRe = re.compile(
-    r"{.*width\s*=\s*(\d+)%.*}"
-)  # https://regex101.com/r/8zgA9P/2
+# For images, we are looking for a pattern in the alt text,
+# e.g. Some text { width =31% }
+# grab the number for image scale, and grab the remainder for the caption.
+# This should be "compatible" with other Markdown variants.
+# e.g. Pandoc uses alt text for image caption.
+imageWidthRe = re.compile(r"(.*){.*width\s*=\s*(\d+)%.*}")
+# https://regex101.com/r/8zgA9P/2
 
 
 class PdfRenderer:
@@ -69,6 +73,9 @@ class PdfRenderer:
         # and remaining text could be printed.  For now, drop it.
         if node.parent is not None:
             if node.parent.t == "image":
+                self.cr("caption")
+                self.printCentre(node.literal)
+                self.cr("caption")
                 return
         line = node.literal
         self.printLine(line)
@@ -166,9 +173,9 @@ class PdfRenderer:
                     desiredWidth = imageWidthRe.match(node.first_child.literal)
                     if desiredWidth:
                         node.first_child.literal = imageWidthRe.sub(
-                            "", node.first_child.literal
+                            desiredWidth.group(1), node.first_child.literal
                         )
-                        rectScale = float(desiredWidth.group(1)) / 100
+                        rectScale = float(desiredWidth.group(2)) / 100
                         rectWidth = (width - 2 * margin) * rectScale
                         rectHeight = rectWidth / imageRatio
 

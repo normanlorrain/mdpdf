@@ -20,6 +20,10 @@ headingfontSizes = [18, 16, 14, 12, 10, 10, 10, 10]
 lineheight = fontSize * 1.2  # line height is 20% larger
 margin = 72
 
+imageWidthRe = re.compile(
+    r"{.*width\s*=\s*(\d+)%.*}"
+)  # https://regex101.com/r/8zgA9P/2
+
 
 class PdfRenderer:
     def __init__(self, pdf):
@@ -60,7 +64,12 @@ class PdfRenderer:
         return
 
     def text(self, node, entering=None):
-        # TODO Word > printable area
+        # TODO: what to do with text in image "alt" field?
+        # we are currently using it for non-standard "width"
+        # and remaining text could be printed.  For now, drop it.
+        if node.parent is not None:
+            if node.parent.t == "image":
+                return
         line = node.literal
         self.printLine(line)
 
@@ -148,23 +157,41 @@ class PdfRenderer:
                 imagefile = Path(self.indir) / node.destination
                 imageW, imageH = image.get_image_size(str(imagefile))
                 print(imagefile, imageW, imageH)
+                imageRatio = imageW / imageH
+                rectWidth, rectHeight = imageW, imageH  # default w,h
 
-                if imageH > height - self.insertPoint.y:
+                # If the alt field (next node) has width specified, use it
+                # This is the width of the image relative to printable area
+                if node.first_child:
+                    desiredWidth = imageWidthRe.match(node.first_child.literal)
+                    if desiredWidth:
+                        node.first_child.literal = imageWidthRe.sub(
+                            "", node.first_child.literal
+                        )
+                        rectScale = float(desiredWidth.group(1)) / 100
+                        rectWidth = (width - 2 * margin) * rectScale
+                        rectHeight = rectWidth / imageRatio
+
+                # If we're running out of room start a new page
+                if rectHeight > height - margin - self.insertPoint.y:
                     self.newPage()
 
-                if imageW > (width - (2 * margin)):
-                    rect = fitz.Rect(
-                        self.insertPoint, width - margin, self.insertPoint.y + imageH
-                    )
-                else:
-                    self.insertPoint.x = (width - imageW) / 2
+                # Use all available width if desired, otherwise centre image.
+                if rectWidth > (width - (2 * margin)):
                     rect = fitz.Rect(
                         self.insertPoint,
-                        self.insertPoint.x + imageW,
-                        self.insertPoint.y + imageH,
+                        width - margin,
+                        self.insertPoint.y + rectHeight,
+                    )
+                else:
+                    self.insertPoint.x = (width - rectWidth) / 2
+                    rect = fitz.Rect(
+                        self.insertPoint,
+                        self.insertPoint.x + rectWidth,
+                        self.insertPoint.y + rectHeight,
                     )
                 self.currentPage.insertImage(rect, str(imagefile), keep_proportion=True)
-                self.insertPoint.y += imageH
+                self.insertPoint.y += rectHeight
             except FileNotFoundError as err:
                 print(f"{err}")
                 raise  # TODO: print node/line number

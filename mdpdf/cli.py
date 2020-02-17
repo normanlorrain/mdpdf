@@ -21,9 +21,7 @@ from mdpdf.headfoot import Header, Footer
 
 
 @click.command()
-@click.option(
-    "--output", "-o", metavar="<filename>", help="Destination for file output."
-)
+@click.option("--output", "-o", metavar="FILE", help="Destination for file output.")
 @click.option(
     "--header",
     "-h",
@@ -39,7 +37,8 @@ def cli(output: str, header: str, footer: str, inputs):
 \b    
 For options below, <template> is a quoted, comma-
 delimited string, containing the left, centre, 
-and right, header fields. Format is 
+and right, header/footer fields. Format is 
+
   "[left],[middle],[right]" 
 
 \b
@@ -47,7 +46,7 @@ Possible values to put here are:
   - Empty string
   - Arbitrary text
   - {page} current page number 
-  - {header} last top-level body text heading
+  - {header} current top-level body text heading
   - {date} current date
 """
     ctx = click.get_current_context()

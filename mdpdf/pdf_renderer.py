@@ -362,6 +362,8 @@ class PdfRenderer:
         while link:
             link.setBorder({"width": 0.5, "style": "U"})
             link = link.next
+
+        style.push(fontname=font.HELVETICA, fontsize=8, indent=0)
         self.insertPoint.y = margin / 2 + lineheight / 2
         l = Header.left(properties)
         m = Header.mid(properties)
@@ -372,10 +374,19 @@ class PdfRenderer:
 
         pntFrom = fitz.Point(margin, 0.75 * margin)
         pntTo = fitz.Point(width - margin, 0.75 * margin)
-        # shape = self.currentPage.newShape()
         self.currentPage.drawLine(pntFrom, pntTo, width=1)
-        # shape.finish()
-        # shape.commit()
+
+        self.insertPoint.y = height - (margin / 2) + lineheight / 2
+        l = Footer.left(properties)
+        m = Footer.mid(properties)
+        r = Footer.right(properties)
+        self.printLeft(l)
+        self.printCentre(m)
+        self.printRight(r)
+
+        pntFrom = fitz.Point(margin, height - (0.75 * margin))
+        pntTo = fitz.Point(width - margin, height - (0.75 * margin))
+        self.currentPage.drawLine(pntFrom, pntTo, width=1)
 
     def newPage(self):
         self.finishPage()
@@ -384,31 +395,31 @@ class PdfRenderer:
 
     def printLeft(self, line):
         sty = style.currentStyle()
-        fontName = sty.font.name
-        fontSize = sty.fontsize / 2
-        lineWidth = fitz.getTextlength(line, fontname=fontName, fontsize=fontSize)
+        lineWidth = fitz.getTextlength(
+            line, fontname=sty.font.name, fontsize=sty.fontsize
+        )
         self.insertPoint.x = margin
         self.currentPage.insertText(
-            self.insertPoint, line, fontname=fontName, fontsize=fontSize
+            self.insertPoint, line, fontname=sty.font.name, fontsize=sty.fontsize
         )
 
     def printCentre(self, line):
         sty = style.currentStyle()
-        fontName = sty.font.name
-        fontSize = sty.fontsize / 2
-        lineWidth = fitz.getTextlength(line, fontname=fontName, fontsize=fontSize)
+        lineWidth = fitz.getTextlength(
+            line, fontname=sty.font.name, fontsize=sty.fontsize
+        )
         self.insertPoint.x = width / 2 - lineWidth / 2
         self.currentPage.insertText(
-            self.insertPoint, line, fontname=fontName, fontsize=fontSize
+            self.insertPoint, line, fontname=sty.font.name, fontsize=sty.fontsize
         )
 
     def printRight(self, line):
         sty = style.currentStyle()
-        fontName = sty.font.name
-        fontSize = sty.fontsize / 2
-        lineWidth = fitz.getTextlength(line, fontname=fontName, fontsize=fontSize)
+        lineWidth = fitz.getTextlength(
+            line, fontname=sty.font.name, fontsize=sty.fontsize
+        )
         self.insertPoint.x = width - margin - lineWidth
         self.currentPage.insertText(
-            self.insertPoint, line, fontname=fontName, fontsize=fontSize
+            self.insertPoint, line, fontname=sty.font.name, fontsize=sty.fontsize
         )
 

@@ -12,8 +12,11 @@ Itcan be used as a handy facility for running the task from a command line.
 
 """
 import click
+import glob
 from mdpdf.converter import Converter
 from mdpdf.headfoot import Header, Footer
+
+# TODO: consider pip install click-config-file
 
 
 @click.command()
@@ -32,6 +35,15 @@ def cli(output: str, header: str, footer: str, inputs):
     if footer:
         Footer.setFmt(footer)
 
-    converter = Converter(output)
-    converter.convertMultiple(inputs)
+    if inputs:
+        globlist = []
+        for i in inputs:
+            print(i)
+            globlist.extend(glob.glob(i))
+
+        converter = Converter(output)
+        converter.convertMultiple(globlist)
+    else:
+        ctx = click.get_current_context()
+        ctx.fail("No input specified.")
 

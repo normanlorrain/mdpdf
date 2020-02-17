@@ -27,16 +27,18 @@ class PdfRenderer:
         self.indir = None  # TODO: put this in render() Directory containing markdown (and images)
         self.pdf = pdf
         self.doc = fitz.open()
-        self.disable_tags = 0
+        self.currentPage = None
 
     def __del__(self):
 
         # Close the file.  If an exception occured, the attribute might not be present,
         # so check first.
         if hasattr(self, "doc"):
-            self.doc.setMetadata(properties.document)
-            self.doc.save(str(self.pdf), garbage=4, deflate=True)
-            self.doc.close()
+            # If still None, we haven't processed an ast
+            if self.currentPage:
+                self.doc.setMetadata(properties.document)
+                self.doc.save(str(self.pdf), garbage=4, deflate=True)
+                self.doc.close()
 
     def render(self, ast, indir):
         """Walks the AST and calls member methods for each Node type.

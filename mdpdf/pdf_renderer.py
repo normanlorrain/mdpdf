@@ -35,10 +35,12 @@ class PdfRenderer:
         # so check first.
         if hasattr(self, "doc"):
             # If still None, we haven't processed an ast
-            if self.currentPage:
+            if self.doc.pageCount:
                 self.doc.setMetadata(properties.document)
                 self.doc.save(str(self.pdf), garbage=4, deflate=True)
                 self.doc.close()
+            else:
+                print("No pages to save")
 
     def render(self, ast, indir):
         """Walks the AST and calls member methods for each Node type.

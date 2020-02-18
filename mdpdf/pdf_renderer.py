@@ -161,30 +161,17 @@ class PdfRenderer:
             # jump to the next next child somehow (return??  ) /TODO
 
             try:
+                widthAvailable = width - 2 * margin
                 imagefile = Path(self.indir) / node.destination
                 imageW, imageH = image.get_image_size(str(imagefile))
                 print(imagefile, imageW, imageH)
                 imageRatio = imageW / imageH
                 rectWidth, rectHeight = imageW, imageH  # default w,h
 
-                # If the alt field (next node) has width specified, use it
-                # This is the width of the image relative to printable area
-                if node.first_child:
-                    desiredWidth = imageWidthRe.match(node.first_child.literal)
-                    if desiredWidth:
-                        node.first_child.literal = imageWidthRe.sub(
-                            desiredWidth.group(1), node.first_child.literal
-                        )
-                        rectScale = float(desiredWidth.group(2)) / 100
-                        rectWidth = (width - 2 * margin) * rectScale
-                        rectHeight = rectWidth / imageRatio
-
-                # If we're running out of room start a new page
-                if rectHeight > height - margin - self.insertPoint.y:
-                    self.newPage()
-
                 # Use all available width if desired, otherwise centre image.
-                if rectWidth > (width - (2 * margin)):
+                if rectWidth > widthAvailable:
+                    rectWidth = widthAvailable
+                    rectHeight = rectWidth / imageRatio
                     rect = fitz.Rect(
                         self.insertPoint,
                         width - margin,
@@ -197,6 +184,35 @@ class PdfRenderer:
                         self.insertPoint.x + rectWidth,
                         self.insertPoint.y + rectHeight,
                     )
+
+                # If the alt field (next node) has width specified, use it
+                # This is the width of the image relative to printable area
+                if node.first_child:
+                    desiredWidth = imageWidthRe.match(node.first_child.literal)
+                    if desiredWidth:
+                        node.first_child.literal = imageWidthRe.sub(
+                            desiredWidth.group(1), node.first_child.literal
+                        )
+                        rectScale = float(desiredWidth.group(2)) / 100
+                        rectWidth = widthAvailable * rectScale
+                        rectHeight = rectWidth / imageRatio
+                        self.insertPoint.x = (width - rectWidth) / 2
+                        rect = fitz.Rect(
+                            self.insertPoint,
+                            self.insertPoint.x + rectWidth,
+                            self.insertPoint.y + rectHeight,
+                        )
+
+                # If we're running out of room start a new page
+                if rectHeight > height - margin - self.insertPoint.y:
+                    self.newPage()
+                    self.insertPoint.x = (width - rectWidth) / 2
+                    rect = fitz.Rect(
+                        self.insertPoint,
+                        self.insertPoint.x + rectWidth,
+                        self.insertPoint.y + rectHeight,
+                    )
+
                 self.currentPage.insertImage(rect, str(imagefile), keep_proportion=True)
                 self.insertPoint.y += rectHeight
             except FileNotFoundError as err:

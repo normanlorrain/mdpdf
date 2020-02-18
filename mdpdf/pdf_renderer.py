@@ -420,29 +420,32 @@ class PdfRenderer:
         properties.page = self.doc.pageCount
 
         style.push(fontname=font.HELVETICA, fontsize=8, indent=0)
-        self.insertPoint.y = margin / 2 + lineheight / 2
-        l = Header.left(properties)
-        m = Header.mid(properties)
-        r = Header.right(properties)
-        self.printLeft(l)
-        self.printCentre(m)
-        self.printRight(r)
+        if Header.enabled:
+            self.insertPoint.y = margin / 2 + lineheight / 2
+            l = Header.left(properties)
+            m = Header.mid(properties)
+            r = Header.right(properties)
+            self.printLeft(l)
+            self.printCentre(m)
+            self.printRight(r)
 
-        pntFrom = fitz.Point(margin, 0.75 * margin)
-        pntTo = fitz.Point(width - margin, 0.75 * margin)
-        self.currentPage.drawLine(pntFrom, pntTo, width=1)
+            pntFrom = fitz.Point(margin, 0.75 * margin)
+            pntTo = fitz.Point(width - margin, 0.75 * margin)
+            self.currentPage.drawLine(pntFrom, pntTo, width=1)
 
-        self.insertPoint.y = height - (margin / 2) + lineheight / 2
-        l = Footer.left(properties)
-        m = Footer.mid(properties)
-        r = Footer.right(properties)
-        self.printLeft(l)
-        self.printCentre(m)
-        self.printRight(r)
+        if Footer.enabled:
+            self.insertPoint.y = height - (margin / 2) + lineheight / 2
+            l = Footer.left(properties)
+            m = Footer.mid(properties)
+            r = Footer.right(properties)
+            self.printLeft(l)
+            self.printCentre(m)
+            self.printRight(r)
 
-        pntFrom = fitz.Point(margin, height - (0.75 * margin))
-        pntTo = fitz.Point(width - margin, height - (0.75 * margin))
-        self.currentPage.drawLine(pntFrom, pntTo, width=1)
+            pntFrom = fitz.Point(margin, height - (0.75 * margin))
+            pntTo = fitz.Point(width - margin, height - (0.75 * margin))
+            self.currentPage.drawLine(pntFrom, pntTo, width=1)
+        style.pop()
 
     def newPage(self):
         self.finishPage()

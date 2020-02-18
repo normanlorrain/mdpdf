@@ -1,7 +1,13 @@
+#
+
+
 class Base:
+    enabled = False
+
     @classmethod
-    def setFmt(self, fmt):
-        self._left, self._mid, self._right = fmt.split(",")
+    def setFmt(cls, fmt):
+        cls._left, cls._mid, cls._right = fmt.split(",")
+        cls.enabled = True
 
     @classmethod
     def left(cls, m):
@@ -22,10 +28,6 @@ class Header(Base):
 
 class Footer(Base):
     pass
-
-
-Header.setFmt("{page},{title},{date}")
-Footer.setFmt(",,")
 
 
 if __name__ == "__main__":

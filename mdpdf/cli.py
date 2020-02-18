@@ -21,7 +21,9 @@ from mdpdf.headfoot import Header, Footer
 
 
 @click.command()
-@click.option("--output", "-o", metavar="FILE", help="Destination for file output.")
+@click.option(
+    "--output", "-o", metavar="FILE", required=True, help="Destination for file output."
+)
 @click.option(
     "--header",
     "-h",

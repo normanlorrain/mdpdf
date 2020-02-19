@@ -35,6 +35,7 @@ class PdfRenderer:
         self.indir = None  # TODO: put this in render() Directory containing markdown (and images)
         self.pdf = pdf
         self.doc = fitz.open()
+        self.toc = []
         self.currentPage = None
 
     def __del__(self):
@@ -44,6 +45,7 @@ class PdfRenderer:
         if hasattr(self, "doc"):
             # If still None, we haven't processed an ast
             if self.doc.pageCount:
+                self.doc.setToC(self.toc)
                 self.doc.setMetadata(properties.document)
                 self.doc.save(str(self.pdf), garbage=4, deflate=True)
                 self.doc.close()
@@ -258,6 +260,14 @@ class PdfRenderer:
             if node.level == 1:
                 properties.heading = node.first_child.literal
         else:
+            self.toc.append(
+                [
+                    node.level,
+                    node.first_child.literal,
+                    self.doc.pageCount,
+                    self.insertPoint.y - headingfontSizes[node.level],
+                ]
+            )
             self.cr("H-")
             style.pop()
 

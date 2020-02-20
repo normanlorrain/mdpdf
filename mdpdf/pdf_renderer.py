@@ -131,26 +131,65 @@ class PdfRenderer:
 
     def link(self, node, entering):
         if entering:
-            # style.push(fontname=font.COURIER)
             self.linkDestination = node.destination  # TODO: deal with "#fragments"
         else:
             # the link on the page can be split over several words & lines
             # So we need to create the clickable areas.
-            for rect in self.linkRects:
-                newLink = {
-                    "kind": fitz.LINK_URI,
-                    "from": rect,  # the area on the page that is "clickable"
-                    "page": None,
-                    "to": None,
-                    "file": None,
-                    "uri": self.linkDestination,
-                    "xref": None,
-                }
-                self.currentPage.insertLink(newLink)
+
+            if ":" in self.linkDestination:
+                for rect in self.linkRects:
+                    newLink = {
+                        "kind": fitz.LINK_URI,
+                        "from": rect,  # the area on the page that is "clickable"
+                        "page": None,
+                        "to": None,
+                        "file": None,
+                        "uri": self.linkDestination,
+                        "xref": None,
+                    }
+                    self.currentPage.insertLink(newLink)
+                self.linkRects.clear()
+            else:
+                filename = Path(self.indir) / self.linkDestination
+                if filename.exists():
+
+                    # This is ugly but whatever
+                    pin = fitz.Point(
+                        self.insertPoint.x, self.insertPoint.y - lineheight
+                    )  # 9 is 1/2 paperclip height
+                    self.currentPage.addFileAnnot(
+                        pin,
+                        buffer=open(filename, mode="rb").read(),
+                        filename=node.first_child.literal,  # This goes in Description  TODO: file issue with PyMuPDF
+                        ufilename=filename.name,  #
+                        desc="deschere",  # Not working.  See TODO: file issue with PyMuPDF
+                        icon="Paperclip",
+                    )
+
+                    ## TODO: linking to an embedded PDF only works on PDF >= 1.6
+                    # rc = self.doc.embeddedFileAdd(
+                    #     self.linkDestination,  # entry identifier
+                    #     buffer=open(filename, mode="rb").read(),
+                    #     filename="NLTEST",  # Optional
+                    #     desc=node.first_child.literal,  # Optional
+                    # )
+                    # for rect in self.linkRects:
+                    #     newLink = {
+                    #         "kind": fitz.LINK_GOTO,  # See PyMuPDF 6.11.2
+                    #         "from": rect,  # the area on the page that is "clickable"
+                    #         "page": 1,
+                    #         # "to": , # For LINK_GOTOR, defaults to Point(0,0), OK
+                    #         "file": self.linkDestination,
+                    #         # "uri": None,  # Only for URI, otherwise ignored
+                    #         # "xref": None,  # OK
+                    #     }
+                    #     self.currentPage.insertLink(newLink)
+
+                else:
+                    # raise Exception(f"file {filename} not found")
+                    print(f"Warning: file {filename} not found")
 
             self.linkDestination = None
-            self.linkRects.clear()
-            # style.pop()
 
     def image(self, node, entering):
         from . import image

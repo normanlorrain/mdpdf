@@ -106,3 +106,9 @@ and images can be specified like so:
 And note that you can backslash-escape any punctuation characters
 which you wish to be displayed literally, ex.: \`foo\`, \*bar\*, etc.
 
+
+## Attachments
+
+This should create a link to an attached file:
+
+[Sample attachment ](references/sample.pdf)

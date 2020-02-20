@@ -4,6 +4,8 @@
 - [design of commonmark library](https://github.com/commonmark/commonmark.js)
 - [Markdown Cheatsheet](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet)
 - [dingus](https://spec.commonmark.org/dingus/)
+- [PDF Reference](https://www.adobe.com/content/dam/acom/en/devnet/acrobat/pdfs/pdf_reference_1-7.pdf)
+
 
 # From the cookiecutter: 
 * a starter [Click](http://click.pocoo.org/5/) command-line application

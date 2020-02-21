@@ -55,7 +55,10 @@ class PdfRenderer:
                     lastspace = str(e).rfind(" ")
                     log.info(self.toc[int(str(e)[lastspace:])])
                 self.doc.setMetadata(properties.document)
-                self.doc.save(str(self.pdf), garbage=4, deflate=True)
+                try:
+                    self.doc.save(str(self.pdf), garbage=4, deflate=True)
+                except RuntimeError as e:
+                    print("e")
                 self.doc.close()
             else:
                 log.info("No pages to save")

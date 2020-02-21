@@ -45,7 +45,14 @@ class PdfRenderer:
         if hasattr(self, "doc"):
             # If still None, we haven't processed an ast
             if self.doc.pageCount:
-                self.doc.setToC(self.toc)
+                for i in range(len(self.toc)):
+                    print(i, self.toc[i])
+                try:
+                    self.doc.setToC(self.toc)
+                except ValueError as e:
+                    print(f"Bad heading level.  More information: ")
+                    lastspace = str(e).rfind(" ")
+                    print(self.toc[int(str(e)[lastspace:])])
                 self.doc.setMetadata(properties.document)
                 self.doc.save(str(self.pdf), garbage=4, deflate=True)
                 self.doc.close()

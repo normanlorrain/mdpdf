@@ -58,7 +58,7 @@ import time
 for i in range(10):
     # (but not *too* quick)
     time.sleep(0.5)
-    print(i)
+    log.info(i)
 ~~~
 
 

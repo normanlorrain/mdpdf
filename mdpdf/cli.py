@@ -16,6 +16,7 @@ import glob
 
 from mdpdf.converter import Converter
 from mdpdf.headfoot import Header, Footer
+from mdpdf import log
 
 # TODO: consider pip install click-config-file
 
@@ -64,15 +65,15 @@ Possible values to put here are:
         ctx.fail(f"{e} in header/footer template.")
 
     if inputs:
+        log.init()
         globlist = []
         for i in inputs:
-            print(i)
+            log.debug(i)
             matches = glob.glob(i)
             if matches:
                 globlist.extend(matches)
             else:
                 ctx.fail(f"File not found: {i}.")
-
         converter = Converter(output)
         converter.convertMultiple(globlist)
     else:

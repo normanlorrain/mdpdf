@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 
 
+from . import log
 from . import style
 from . import font
 from . import properties
@@ -46,18 +47,18 @@ class PdfRenderer:
             # If still None, we haven't processed an ast
             if self.doc.pageCount:
                 for i in range(len(self.toc)):
-                    print(i, self.toc[i])
+                    log.debug(f"{i}, {self.toc[i]}")
                 try:
                     self.doc.setToC(self.toc)
                 except ValueError as e:
-                    print(f"Bad heading level.  More information: ")
+                    log.info(f"Bad heading level.  More information: ")
                     lastspace = str(e).rfind(" ")
-                    print(self.toc[int(str(e)[lastspace:])])
+                    log.info(self.toc[int(str(e)[lastspace:])])
                 self.doc.setMetadata(properties.document)
                 self.doc.save(str(self.pdf), garbage=4, deflate=True)
                 self.doc.close()
             else:
-                print("No pages to save")
+                log.info("No pages to save")
 
     def render(self, ast, indir):
         """Walks the AST and calls member methods for each Node type.
@@ -195,7 +196,7 @@ class PdfRenderer:
 
                 else:
                     # raise Exception(f"file {filename} not found")
-                    print(f"Warning: file {filename} not found")
+                    log.info(f"Warning: file {filename} not found")
 
             self.linkDestination = None
 
@@ -213,7 +214,7 @@ class PdfRenderer:
                 widthAvailable = width - 2 * margin
                 imagefile = Path(self.indir) / node.destination
                 imageW, imageH = image.get_image_size(str(imagefile))
-                print(imagefile, imageW, imageH)
+                log.debug(f"{imagefile}, {imageW}, {imageH}")
                 imageRatio = imageW / imageH
                 rectWidth, rectHeight = imageW, imageH  # default w,h
 
@@ -265,7 +266,7 @@ class PdfRenderer:
                 self.currentPage.insertImage(rect, str(imagefile), keep_proportion=True)
                 self.insertPoint.y += rectHeight
             except FileNotFoundError as err:
-                print(f"{err}")
+                log.info(f"{err}")
                 raise  # TODO: print node/line number
 
         # node.title
@@ -439,7 +440,7 @@ class PdfRenderer:
         #     fontname="cobo",
         #     fontsize=fontSize * 2,
         # )
-        print("printSegment", line)
+        log.debug(f"printSegment: {line}")
         self.currentPage.insertText(
             self.insertPoint, line, fontname=fontName, fontsize=fontSize
         )

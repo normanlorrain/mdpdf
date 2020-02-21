@@ -12,7 +12,7 @@ class Style:
 
     def setAttributes(self, **kwargs):
         for var, val in kwargs.items():
-            # print(var, val)
+            # log.info(f"{var}, {val}")
             if var == "fontname":
                 self.font = font.Base14(val)
             elif var == "fontsize":

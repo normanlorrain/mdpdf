@@ -156,7 +156,7 @@ class PdfRenderer:
                     # This is ugly but whatever
                     pin = fitz.Point(
                         self.insertPoint.x, self.insertPoint.y - lineheight
-                    )  # 9 is 1/2 paperclip height
+                    )
                     self.currentPage.addFileAnnot(
                         pin,
                         buffer=open(filename, mode="rb").read(),
@@ -166,7 +166,8 @@ class PdfRenderer:
                         icon="Paperclip",
                     )
 
-                    ## TODO: linking to an embedded PDF only works on PDF >= 1.6
+                    ## This doesn't work but keeping as comments for future reference.
+                    ## (Linking to an embedded PDF only works on PDF >= 1.6)
                     # rc = self.doc.embeddedFileAdd(
                     #     self.linkDestination,  # entry identifier
                     #     buffer=open(filename, mode="rb").read(),

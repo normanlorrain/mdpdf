@@ -8,7 +8,7 @@ document = {
     "creationDate": fitz.getPDFnow(),  # current timestamp
     "modDate": fitz.getPDFnow(),  # current timestamp
     "creator": "mdpdf",
-    "producer": "Markdown to PDF",
+    "producer": "mdpdf",
     "title": "title goes here",
     "subject": "subject here",
     "author": "author here",

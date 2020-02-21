@@ -38,7 +38,7 @@ if os.getenv("buildnum") is not None:
     )
 
 setup(
-    name="Markdown to PDF",
+    name="mdpdf",
     description="Python command line application to convert Markdown to PDF.",
     long_description=long_description,
     packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),

@@ -14,13 +14,13 @@
 
 It created a readthedocs link, not functional: 
 The project's documentation contains a section to help you
-[get started](https://Markdown to PDF.readthedocs.io/en/latest/getting_started.html) as a developer or
+[get started](https://mdpdf.readthedocs.io/en/latest/getting_started.html) as a developer or
 user of the library.
 
 
 Below are some handy resource links.
 
-* [Project Documentation](http://Markdown to PDF.readthedocs.io/)
+* [Project Documentation](http://mdpdf.readthedocs.io/)
 * [Click](http://click.pocoo.org/5/) is a Python package for creating beautiful command line interfaces in a composable way with as little code as necessary.
 * [Sphinx](http://www.sphinx-doc.org/en/master/) is a tool that makes it easy to create intelligent and beautiful documentation, written by Geog Brandl and licnsed under the BSD license.
 * [pytest](https://docs.pytest.org/en/latest/) helps you write better programs.

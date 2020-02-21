@@ -8,7 +8,7 @@ Python command line application to convert Markdown to PDF.
 ## Project Features
 
 * Bare-bones: Only supports basic [CommonMark](https://commonmark.org/)
-* *Not* beautiful: Left-aligned, PDF-base14 fonts. See alternatives below.
+* *Not necessarily* beautiful: Left-aligned, PDF-base14 fonts. Reasonably pretty, but if you want more control, see alternatives below.
 * Minimal requirements
     - [commonmark](https://pypi.org/project/commonmark/)
     - [PyMuMDF](https://pypi.org/project/PyMuPDF/)
@@ -16,8 +16,8 @@ Python command line application to convert Markdown to PDF.
 ## Alternatives
 There are several projects that can be considered if you need something with more features.  Of note: 
 * pandoc + latex
-* rst2pdf
-* rinohtype
+* [rst2pdf](https://github.com/rst2pdf/rst2pdf)
+* [rinohtype](https://github.com/brechtm/rinohtype)
 
 ## Installation
 

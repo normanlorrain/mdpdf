@@ -44,8 +44,10 @@ setup(
     packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     version=version,
     install_requires=[
-        # Include dependencies here
-        "click>=7.0,<8"
+        # Include dependencies here https://packaging.python.org/discussions/install-requires-vs-requirements/
+        "pymupdf>=1.16.10",
+        "commonmark>=0.9.1",
+        "click>=7.0,<8",
     ],
     entry_points="""
     [console_scripts]

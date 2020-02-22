@@ -33,21 +33,24 @@ quicktest:
 coverage: lint
 	py.test --cov-report html --cov=$(PROJ_SLUG) tests/
 
-docs: coverage
-	mkdir -p docs/source/_static
-	mkdir -p docs/source/_templates
-	cd docs && $(MAKE) html
-	pandoc --from=markdown --to=rst --output=README.rst README.md
+# docs: coverage
+# 	mkdir -p docs/source/_static
+# 	mkdir -p docs/source/_templates
+# 	cd docs && $(MAKE) html
+# 	pandoc --from=markdown --to=rst --output=README.rst README.md
 
-answers:
-	cd docs && $(MAKE) html
-	xdg-open docs/build/html/index.html
+# answers:
+# 	cd docs && $(MAKE) html
+# 	xdg-open docs/build/html/index.html
 
-package: clean docs
-	python setup.py sdist
+package: clean 
+	python setup.py sdist bdist_wheel
 
 publish: package
 	twine upload dist/*
+
+testpublish: package 
+	python -m twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 
 clean :
 	rm -rf dist \

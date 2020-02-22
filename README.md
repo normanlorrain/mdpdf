@@ -12,6 +12,7 @@ Python command line application to convert Markdown to PDF.
 * Minimal requirements
     - [commonmark](https://pypi.org/project/commonmark/)
     - [PyMuMDF](https://pypi.org/project/PyMuPDF/)
+    - [click](https://pypi.org/project/click/)
 
 ## Alternatives
 There are several projects that can be considered if you need something with more features.  Of note: 

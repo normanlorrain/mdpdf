@@ -8,5 +8,4 @@ This module contains project version information.
 .. moduleauthor:: Norman Lorrain <normanlorrain@gmail.com>
 """
 
-__version__ = "0.0.1"  #: the working version
-__release__ = "0.0.1"  #: the release version
+__version__ = "0.0.2"  #: the working version

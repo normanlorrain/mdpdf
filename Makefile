@@ -1,3 +1,7 @@
+# Makefile for managing build process
+# On Windows, get make with "chocolatey" (https://chocolatey.org/install)
+#   choco install make
+
 .DEFAULT_GOAL := build
 .PHONY: build publish package coverage test lint docs venv
 PROJ_SLUG = mdpdf

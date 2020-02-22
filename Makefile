@@ -47,6 +47,7 @@ package: clean
 	python setup.py sdist bdist_wheel
 
 publish: package
+	twine check  dist/* 
 	twine upload dist/*
 
 testpublish: package 

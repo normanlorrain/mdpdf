@@ -22,7 +22,7 @@ There are several projects that can be considered if you need something with mor
 
 ## Installation
 
-    $ pip install mdpdf    # TODO 
+    $ pip install mdpdf
 
 ## Usage
     $ mdpdf [options] [input-file]...

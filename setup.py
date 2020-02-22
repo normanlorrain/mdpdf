@@ -41,6 +41,7 @@ setup(
     name="mdpdf",
     description="Python command line application to convert Markdown to PDF.",
     long_description=long_description,
+    long_description_content_type="text/markdown",
     packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     version=version,
     install_requires=[

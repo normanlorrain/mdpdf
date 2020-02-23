@@ -3,4 +3,10 @@ pymupdf>=1.16.10
 commonmark>=0.9.1
 click>=7.0,<8
 
-# TODO, maybe add setuptools wheel twine 
+# Developer requirements
+setuptools
+wheel
+twine
+pylint
+black
+

@@ -33,6 +33,7 @@ from mdpdf import log
 """,
 )
 @click.option("--footer", "-f", metavar="<template>", help="Footer template.")
+@click.version_option()
 @click.argument("inputs", nargs=-1)
 def cli(output: str, header: str, footer: str, inputs):
     """Convert Markdown to PDF.

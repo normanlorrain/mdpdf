@@ -1,32 +1,24 @@
-# Makefile for managing build process
-# On Windows, get make with "chocolatey" (https://chocolatey.org/install)
+# Makefile for managing development
+# On Windows, this is flakey, and I may abandon it, but to get started, 
+# install make with "chocolatey" (https://chocolatey.org/install)
 #   choco install make
 
-.DEFAULT_GOAL := build
-.PHONY: build publish package coverage test lint docs venv
+.DEFAULT_GOAL := package
+.PHONY: package publish package coverage test lint docs venv venv-clean
 PROJ_SLUG = mdpdf
-CLI_NAME = mdpdf
-PY_VERSION = 3.8
-LINTER = flake8
 
-SHELL = bash
+ifeq ($(OS),Windows_NT)
+	REMOVE=rmdir /s /q
+else
+	REMOVE=rm -rf
+endif
 
-
-
-build:
-	pip install --editable .
-
-run:
-	$(CLI_NAME) run
-
-submit:
-	$(CLI_NAME) submit
 
 freeze:
 	pip freeze > requirements.txt
 
 lint:
-	$(LINTER) $(PROJ_SLUG)
+	pylint $(PROJ_SLUG)
 
 test: lint
 	py.test --cov-report term --cov=$(PROJ_SLUG) tests/
@@ -37,42 +29,33 @@ quicktest:
 coverage: lint
 	py.test --cov-report html --cov=$(PROJ_SLUG) tests/
 
-# docs: coverage
-# 	mkdir -p docs/source/_static
-# 	mkdir -p docs/source/_templates
-# 	cd docs && $(MAKE) html
-# 	pandoc --from=markdown --to=rst --output=README.rst README.md
-
-# answers:
-# 	cd docs && $(MAKE) html
-# 	xdg-open docs/build/html/index.html
-
 package: clean 
 	python setup.py sdist bdist_wheel
+	twine check  dist/* 
 
 publish: package
-	twine check  dist/* 
 	twine upload dist/*
 
 testpublish: package 
 	python -m twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 
 clean :
-	rm -rf dist \
-	rm -rf docs/build \
-	rm -rf *.egg-info
-	coverage erase
+	-$(REMOVE) dist
+	-$(REMOVE) build
+	-$(REMOVE) mdpdf.egg-info
 
-venv :
+venv-clean :
+	where python
+	-deactivate
+	where python
+	
+#	$(REMOVE) .venv
 
+venv:
+	python -m venv .venv
 
-	python3 -m venv .venv
-	source venv/bin/activate && pip install pip --upgrade --index-url=https://pypi.org/simple
-
-
-install:
+bootstrap:
+	.venv\scripts\activate
+	python -m pip install --upgrade pip
 	pip install -r requirements.txt
-
-licenses:
-	pip-licenses --with-url --format=rst \
-	--ignore-packages $(shell cat .pip-license-ignore | awk '{$$1=$$1};1')
+	pip install --editable .

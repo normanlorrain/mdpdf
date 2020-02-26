@@ -107,20 +107,23 @@ class PdfRenderer:
             suffix = line
             while True:
                 index = line.rfind(" ", 0, len(prefix))
-                if index == -1:
+                if index == -1:  # No spaces found.  Print it on the next line
+                    self.cr(chr(0xAC))
+                    self.printSegment(suffix)
                     break
                 prefix = line[:index]
                 prefixWidth = fitz.getTextlength(
                     prefix, fontname=fontName, fontsize=fontSize
                 )
-                if prefixWidth > budget:
+                if prefixWidth > budget:  # Still too large.  Chop again.
                     continue
                 else:
                     self.printSegment(prefix)
                     suffix = line[index + 1 :]
+                    # Recurse for the remainder.  It might be too long as well.
+                    self.cr(chr(0xAC))
+                    self.printLine(suffix)
                     break
-            self.cr(chr(0xAC))
-            self.printSegment(suffix)
 
     # Softbreaks are just CRs in the input, within paragraph
     # it becomes a space.

@@ -9,10 +9,13 @@ Python command line application to convert Markdown to PDF.
 
 * Bare-bones: Only supports basic [CommonMark](https://commonmark.org/)
 * *Not necessarily* beautiful: Left-aligned, PDF-base14 fonts. Reasonably pretty, but if you want more control, see alternatives below.
+* Images inserted with optional captions and width specifier.
+* File attachments inserted with PDF links.
 * Minimal requirements
     - [commonmark](https://pypi.org/project/commonmark/)
     - [PyMuMDF](https://pypi.org/project/PyMuPDF/)
     - [click](https://pypi.org/project/click/)
+
 
 ## Alternatives
 There are several projects that can be considered if you need something with more features.  Of note: 
@@ -25,14 +28,32 @@ There are several projects that can be considered if you need something with mor
     $ pip install mdpdf
 
 ## Usage
-    $ mdpdf [options] [input-file]...
+    $ mdpdf [OPTIONS] [INPUTS]...
 
-Where options are:
-- `-o` *output file*
-- `-h` *header format*
-- `-f` *footer format*
+### Options:
+-  `-o, --output FILE       ` Destination for file output.  [required]
+-  `-h, --header <template> ` Sets the header template.
+-  `-f, --footer <template> ` Footer template.
+-  `--version               ` Show the version and exit.
+-  `--help                  ` Show this message and exit.
 
-For example, specify the output file with the `-o` option:
+
+### Templates:
+
+The `<template>` is a quoted, comma-
+  delimited string, containing the left, centre,
+  and right, fields for the header/footer. Format is `"[left],[middle],[right]"`.
+
+Possible values to put here are:
+- Empty string
+- Arbitrary text
+- Special variables:
+    - `{page}` current page number
+    - `{header}` current top-level body text heading
+    - `{date}` current date
+
+Example:
 
     $ mdpdf -o article.pdf article.md
 
+    $ mdpdf -o article.pdf --footer "{date},{heading},{page} article.md

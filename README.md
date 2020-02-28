@@ -8,9 +8,10 @@ Python command line application to convert Markdown to PDF.
 ## Project Features
 
 * Bare-bones: Only supports basic [CommonMark](https://commonmark.org/)
-* *Not necessarily* beautiful: Left-aligned, PDF-base14 fonts. Reasonably pretty, but if you want more control, see alternatives below.
-* Images inserted with optional captions and width specifier.
-* File attachments inserted with PDF links.
+* "One-size-fits-all" style: Left-aligned, PDF-base14 fonts. Reasonably pretty, but if you want more control, see alternatives below.
+* Headings are transformed to PDF bookmarks.
+* File links are transformed into attachments with PDF links.
+* Images links are transformed into embedded images with optional captions and width specifier.
 * Minimal requirements
     - [commonmark](https://pypi.org/project/commonmark/)
     - [PyMuMDF](https://pypi.org/project/PyMuPDF/)

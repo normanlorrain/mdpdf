@@ -92,7 +92,7 @@ Notice again how text always lines up on 4-space indents (including
 that last line which continues item 3 above).
 
 Here's a link to [a website](http://foo.bar), to a [local
-doc](local-doc.html). 
+doc](quick.md). 
 
 A horizontal rule follows.
 
@@ -100,7 +100,7 @@ A horizontal rule follows.
 
 and images can be specified like so:
 
-![Example image {width=10%}](example-image.jpg "An exemplary image")
+![Example image {width=10%}](images/example-image.jpg "An exemplary image")
 
 
 And note that you can backslash-escape any punctuation characters

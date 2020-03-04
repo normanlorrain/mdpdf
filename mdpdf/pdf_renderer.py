@@ -202,7 +202,9 @@ class PdfRenderer:
 
                 else:
                     # raise Exception(f"file {filename} not found")
-                    log.info(f"Warning: file {filename} not found")
+                    log.error(
+                        f"File {node.destination} not found.  Line {node.parent.sourcepos[1][0]}"
+                    )
 
             self.linkDestination = None
 
@@ -272,8 +274,7 @@ class PdfRenderer:
                 self.currentPage.insertImage(rect, str(imagefile), keep_proportion=True)
                 self.insertPoint.y += rectHeight
             except FileNotFoundError as err:
-                log.info(f"{err}")
-                raise  # TODO: print node/line number
+                log.error(f"{err.strerror}.  Line {node.parent.sourcepos[1][0]}")
 
         # node.title
 

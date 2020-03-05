@@ -63,12 +63,9 @@ class PdfRenderer:
             else:
                 log.info("No pages to save")
 
-    def render(self, ast, indir):
-        """Walks the AST and calls member methods for each Node type.
-
-        @param ast {Node} The root of the abstract syntax tree.
-        """
-        self.indir = indir
+    def render(self, ast, inputFile):
+        self.infile = Path(inputFile).absolute()
+        self.indir = Path(inputFile).parent.resolve()
         for node, entering in ast.walker():
             getattr(self, node.t)(node, entering)
 
@@ -165,7 +162,7 @@ class PdfRenderer:
                 self.linkRects.clear()
             else:
                 filename = Path(self.indir) / self.linkDestination
-                if filename.exists():
+                try:
 
                     # This is ugly but whatever
                     pin = fitz.Point(
@@ -200,13 +197,13 @@ class PdfRenderer:
                     #     }
                     #     self.currentPage.insertLink(newLink)
 
-                else:
-                    # raise Exception(f"file {filename} not found")
-                    log.error(
-                        f"File {node.destination} not found.  Line {node.parent.sourcepos[1][0]}"
-                    )
+                except FileNotFoundError as err:
+                    self.markdownError(node, f"{node.destination}: {err.strerror}")
 
             self.linkDestination = None
+
+    def markdownError(self, node, msg):
+        log.error(f"{self.infile}:{node.parent.sourcepos[1][0]}: {msg}")
 
     def image(self, node, entering):
         from . import image
@@ -274,7 +271,7 @@ class PdfRenderer:
                 self.currentPage.insertImage(rect, str(imagefile), keep_proportion=True)
                 self.insertPoint.y += rectHeight
             except FileNotFoundError as err:
-                log.error(f"{err.strerror}.  Line {node.parent.sourcepos[1][0]}")
+                self.markdownError(node, f"{node.destination}: {err.strerror}")
 
         # node.title
 
@@ -385,7 +382,6 @@ class PdfRenderer:
 
     def item(self, node, entering):
         # attrs = self.attrs(node)
-        # node.sourcepos
         if entering:
             if self.list_data[-1]["type"] == "ordered":
                 self.printSegment(f" {node.list_data['start']} ")

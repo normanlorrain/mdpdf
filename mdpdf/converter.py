@@ -14,11 +14,10 @@ class Converter:
 
     def convert(self, inputFile):
         log.info(inputFile)
-        indir = Path(inputFile).parent.resolve()
         mdFile = open(inputFile, "r", encoding="utf-8")
         entireFile = mdFile.read()
         ast = self.parser.parse(entireFile)
-        self.renderer.render(ast, indir)
+        self.renderer.render(ast, inputFile)
 
     def convertSingle(self, inputFileName):
         self.convert(inputFileName)

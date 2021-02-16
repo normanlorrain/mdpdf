@@ -268,7 +268,7 @@ class PdfRenderer:
                         self.insertPoint.y + rectHeight,
                     )
 
-                self.currentPage.insertImage(rect, str(imagefile), keep_proportion=True)
+                self.currentPage.insertImage(rect, filename=str(imagefile), keep_proportion=True)
                 self.insertPoint.y += rectHeight
             except FileNotFoundError as err:
                 self.markdownError(node, f"{node.destination}: {err.strerror}")

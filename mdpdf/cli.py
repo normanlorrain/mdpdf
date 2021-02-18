@@ -38,21 +38,20 @@ from mdpdf import log
 def cli(output: str, header: str, footer: str, inputs):
     """Convert Markdown to PDF.
 
-\b    
-For options below, <template> is a quoted, comma-
-delimited string, containing the left, centre, 
-and right, header/footer fields. Format is 
+    \b
+    For options below, <template> is a quoted, comma-
+    delimited string, containing the left, centre,
+    and right, header/footer fields. Format is
 
-  "[left],[middle],[right]" 
+      "[left],[middle],[right]"
 
-\b
-Possible values to put here are: 
-  - Empty string
-  - Arbitrary text
-  - {page} current page number 
-  - {header} current top-level body text heading
-  - {date} current date
-"""
+    \b
+    Possible values to put here are:
+      - Empty string
+      - Arbitrary text
+      - {page} current page number
+      - {header} current top-level body text heading
+      - {date} current date"""
     ctx = click.get_current_context()
     if not output:
         ctx.fail("No output specified.")
@@ -76,7 +75,7 @@ Possible values to put here are:
             else:
                 ctx.fail(f"File not found: {i}.")
         converter = Converter(output)
-        converter.convertMultiple(globlist)
+        converter.convert(globlist)
     else:
         ctx.fail("No input specified.")
 

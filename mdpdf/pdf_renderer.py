@@ -1,10 +1,10 @@
-# inspired from https://github.com/readthedocs/commonmark.py/blob/master/commonmark/render/html.py
+# inspired from
+# https://github.com/readthedocs/commonmark.py/blob/master/commonmark/render/html.py
 # https://github.com/readthedocs/commonmark.py/blob/master/commonmark/render/renderer.py
 
 import re
 from builtins import str
 import fitz
-import sys
 from pathlib import Path
 
 
@@ -33,7 +33,8 @@ imageWidthRe = re.compile(r"(.*){.*width\s*=\s*(\d+)%.*}")
 class PdfRenderer:
     def __init__(self, pdf):
         self.list_data = list()  # to store the states of ordered/unordered list
-        self.indir = None  # TODO: put this in render() Directory containing markdown (and images)
+        # TODO: put this in render() Directory containing markdown (and images)
+        self.indir = None
         self.pdf = pdf
         self.doc = fitz.open()
         self.toc = []
@@ -51,14 +52,14 @@ class PdfRenderer:
                 try:
                     self.doc.setToC(self.toc)
                 except ValueError as e:
-                    log.info(f"Bad heading level.  More information: ")
+                    log.exception("Bad heading level.  More information:")
                     lastspace = str(e).rfind(" ")
                     log.info(self.toc[int(str(e)[lastspace:])])
                 self.doc.setMetadata(properties.document)
                 try:
                     self.doc.save(str(self.pdf), garbage=4, deflate=True)
                 except RuntimeError as e:
-                    print("e")
+                    log.exception(e)
                 self.doc.close()
             else:
                 log.info("No pages to save")
@@ -171,14 +172,16 @@ class PdfRenderer:
                     self.currentPage.addFileAnnot(
                         pin,
                         buffer=open(filename, mode="rb").read(),
-                        filename=node.first_child.literal,  # This goes in Description  TODO: file issue with PyMuPDF
-                        ufilename=filename.name,  #
-                        desc="deschere",  # Not working.  See TODO: file issue with PyMuPDF
+                        # This goes in Description  TODO: file issue with PyMuPDF
+                        filename=node.first_child.literal,
+                        ufilename=filename.name,
+                        # Not working.  See TODO: file issue with PyMuPDF
+                        desc="deschere",
                         icon="Paperclip",
                     )
 
-                    ## This doesn't work but keeping as comments for future reference.
-                    ## (Linking to an embedded PDF only works on PDF >= 1.6)
+                    # This doesn't work but keeping as comments for future reference.
+                    # (Linking to an embedded PDF only works on PDF >= 1.6)
                     # rc = self.doc.embeddedFileAdd(
                     #     self.linkDestination,  # entry identifier
                     #     buffer=open(filename, mode="rb").read(),
@@ -209,10 +212,12 @@ class PdfRenderer:
         from . import image
 
         if entering:
-            # TODO: consider using the alt attribute to pass the rectangle dimensions/alignment/etc. https://www.w3schools.com/tags/att_img_alt.asp
+            # TODO: consider using the alt attribute to pass the rectangle
+            # dimensions/alignment/etc. https://www.w3schools.com/tags/att_img_alt.asp
             # This means the next node would need to be "peaked" at, since that's how
             # commonmark parses it.
-            # Also, the text callback would have to check if it's the child of an image node, OR, this function would
+            # Also, the text callback would have to check if it's the child of an
+            # image node, OR, this function would
             # jump to the next next child somehow (return??  ) /TODO
 
             try:
@@ -268,7 +273,9 @@ class PdfRenderer:
                         self.insertPoint.y + rectHeight,
                     )
 
-                self.currentPage.insertImage(rect, filename=str(imagefile), keep_proportion=True)
+                self.currentPage.insertImage(
+                    rect, filename=str(imagefile), keep_proportion=True
+                )
                 self.insertPoint.y += rectHeight
             except FileNotFoundError as err:
                 self.markdownError(node, f"{node.destination}: {err.strerror}")
@@ -294,7 +301,8 @@ class PdfRenderer:
                     return
             if node.parent.parent is not None:
                 if node.parent.parent.t == "list":
-                    # if grandparent.list_data["tight"]:  # TODO maybe deal with tight/loose lists
+                    # if grandparent.list_data["tight"]:
+                    # TODO maybe deal with tight/loose lists
                     return
             self.crHalfLine("paragraphhalf+")
         else:
@@ -387,9 +395,8 @@ class PdfRenderer:
                 self.printSegment(f" {node.list_data['start']} ")
             else:
                 style.push(fontname=font.ZAPFDINGBATS)
-                self.printSegment(
-                    "l"
-                )  # Bullet:  https://help.adobe.com/en_US/framemaker/2015/using/using-framemaker-2015/Appendix/frm_character_sets_cs/frm_character_sets_cs-5.htm
+                self.printSegment("l")  # Bullet:
+                #  https://help.adobe.com/en_US/framemaker/2015/using/using-framemaker-2015/Appendix/frm_character_sets_cs/frm_character_sets_cs-5.htm
                 style.pop()
             self.indent += 16
             self.insertPoint.x = margin + self.indent
@@ -483,12 +490,12 @@ class PdfRenderer:
         style.push(fontname=font.HELVETICA, fontsize=8, indent=0)
         if Header.enabled:
             self.insertPoint.y = margin / 2 + lineheight / 2
-            l = Header.left(properties)
-            m = Header.mid(properties)
-            r = Header.right(properties)
-            self.printLeft(l)
-            self.printCentre(m)
-            self.printRight(r)
+            left = Header.left(properties)
+            middle = Header.mid(properties)
+            right = Header.right(properties)
+            self.printLeft(left)
+            self.printCentre(middle)
+            self.printRight(right)
 
             pntFrom = fitz.Point(margin, 0.75 * margin)
             pntTo = fitz.Point(width - margin, 0.75 * margin)
@@ -496,12 +503,12 @@ class PdfRenderer:
 
         if Footer.enabled:
             self.insertPoint.y = height - (margin / 2) + lineheight / 2
-            l = Footer.left(properties)
-            m = Footer.mid(properties)
-            r = Footer.right(properties)
-            self.printLeft(l)
-            self.printCentre(m)
-            self.printRight(r)
+            left = Footer.left(properties)
+            middle = Footer.mid(properties)
+            right = Footer.right(properties)
+            self.printLeft(left)
+            self.printCentre(middle)
+            self.printRight(right)
 
             pntFrom = fitz.Point(margin, height - (0.75 * margin))
             pntTo = fitz.Point(width - margin, height - (0.75 * margin))
@@ -515,9 +522,6 @@ class PdfRenderer:
 
     def printLeft(self, line):
         sty = style.currentStyle()
-        lineWidth = fitz.getTextlength(
-            line, fontname=sty.font.name, fontsize=sty.fontsize
-        )
         self.insertPoint.x = margin
         self.currentPage.insertText(
             self.insertPoint, line, fontname=sty.font.name, fontsize=sty.fontsize
@@ -542,4 +546,3 @@ class PdfRenderer:
         self.currentPage.insertText(
             self.insertPoint, line, fontname=sty.font.name, fontsize=sty.fontsize
         )
-

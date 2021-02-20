@@ -16,14 +16,3 @@ class Converter:
             entireFile = mdFile.read()
             ast = self.parser.parse(entireFile)
             self.renderer.render(ast, inputFile)
-
-
-def convertMarkdown2Pdf(inputFileName, outputFileName):
-    parser = commonmark.Parser()
-
-    mdFile = open(inputFileName, "r", encoding="utf-8")
-    entireFile = mdFile.read()
-    ast = parser.parse(entireFile)
-
-    renderer = PdfRenderer(outputFileName)
-    renderer.render(ast, inputFileName.parent)

@@ -15,7 +15,6 @@ from . import properties
 from .headfoot import Header, Footer
 
 
-width, height = fitz.PaperSize("letter")  # choose paper format
 fontSize = 10  # choose font size of text
 headingfontSizes = [18, 16, 14, 12, 10, 10, 10, 10]
 lineheight = fontSize * 1.2  # line height is 20% larger
@@ -39,6 +38,9 @@ class PdfRenderer:
         self.doc = fitz.open()
         self.toc = []
         self.currentPage = None
+
+        global width, height
+        width, height = fitz.PaperSize(properties.paperSize)  # choose paper format
 
     def __del__(self):
 

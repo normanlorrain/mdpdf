@@ -1,6 +1,8 @@
 import fitz
 import datetime
 
+from fitz.fitz import PaperSize
+
 # This dict is specific to pyMuPDF.
 # Keys can only be : format, encryption, title, author, subject, keywords, creator, producer, creationDate, modDate
 
@@ -20,6 +22,13 @@ document = {
 page = 1
 header = "some heading"
 date = datetime.datetime.now().date()
+
+paperSize = "letter"
+
+
+def setPaperSize(text):
+    global paperSize
+    paperSize = text
 
 
 def setSection(text):

@@ -16,7 +16,7 @@ import glob
 
 from mdpdf.converter import Converter
 from mdpdf.headfoot import Header, Footer
-from mdpdf.properties import setTitle, setSubject, setAuthor, setKeywords
+from mdpdf.properties import setTitle, setSubject, setAuthor, setKeywords, setPaperSize
 from mdpdf import log
 
 # TODO: consider pip install click-config-file
@@ -32,6 +32,13 @@ from mdpdf import log
 @click.option("--subject", "-s", default="", help="subject here")
 @click.option("--author", "-a", default="", help="author here")
 @click.option("--keywords", "-k", default="", help="keywords here")
+@click.option(
+    "--paper",
+    "-p",
+    default="letter",
+    type=click.Choice(["letter", "A4"], case_sensitive=False),
+    help="paper size ",
+)
 @click.version_option()
 @click.argument("inputs", nargs=-1)
 def cli(
@@ -42,6 +49,7 @@ def cli(
     subject: str,
     author: str,
     keywords: str,
+    paper: str,
     inputs,
 ):
     """Convert Markdown to PDF.
@@ -84,6 +92,9 @@ def cli(
 
     if keywords:
         setKeywords(keywords)
+
+    if paper:
+        setPaperSize(paper)
 
     if inputs:
         log.init()

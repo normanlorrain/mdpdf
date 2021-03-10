@@ -28,16 +28,16 @@ from mdpdf import log
 )
 @click.option("--header", "-h", metavar="<template>", help="Sets the header template.")
 @click.option("--footer", "-f", metavar="<template>", help="Footer template.")
-@click.option("--title", "-t", default="", help="title goes here")
-@click.option("--subject", "-s", default="", help="subject here")
-@click.option("--author", "-a", default="", help="author here")
-@click.option("--keywords", "-k", default="", help="keywords here")
+@click.option("--title", "-t", default="", help="PDF title.")
+@click.option("--subject", "-s", default="", help="PDF subject.")
+@click.option("--author", "-a", default="", help="PDF author.")
+@click.option("--keywords", "-k", default="", help="PDF keywords.")
 @click.option(
     "--paper",
     "-p",
     default="letter",
     type=click.Choice(["letter", "A4"], case_sensitive=False),
-    help="paper size ",
+    help="Paper size (default letter).",
 )
 @click.version_option()
 @click.argument("inputs", nargs=-1)

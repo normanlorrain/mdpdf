@@ -8,4 +8,3 @@ Python command line application to convert Markdown to PDF.
 .. moduleauthor:: Norman Lorrain <normanlorrain@gmail.com>
 """
 
-from .version import __version__

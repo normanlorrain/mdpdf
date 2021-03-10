@@ -10,7 +10,6 @@ module.
 """
 from pathlib import Path
 import mdpdf.cli as cli
-from mdpdf import __version__
 
 from click.testing import CliRunner, Result
 

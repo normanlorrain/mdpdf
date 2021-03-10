@@ -91,8 +91,7 @@ Now a nested list:
 Notice again how text always lines up on 4-space indents (including
 that last line which continues item 3 above).
 
-Here's a link to [a website](http://foo.bar), to a [local
-doc](quick.md). 
+Here's a link to [a website](http://foo.bar), to a [local doc](quick.md). 
 
 A horizontal rule follows.
 

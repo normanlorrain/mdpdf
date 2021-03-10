@@ -205,8 +205,14 @@ class PdfRenderer:
 
             self.linkDestination = None
 
+    def findSource(self, node):
+        if node.sourcepos:
+            return node.sourcepos[1][0]
+        else:
+            return self.findSource(node.parent)
+
     def markdownError(self, node, msg):
-        log.error(f"{self.infile}:{node.parent.sourcepos[1][0]}: {msg}")
+        log.error(f"{self.infile}:{self.findSource(node)}: {msg}")
 
     def image(self, node, entering):
         from . import image
@@ -313,12 +319,18 @@ class PdfRenderer:
 
     def heading(self, node, entering):
         global fontSize
+
+        if not hasattr(node.first_child, "literal"):
+            self.markdownError(node, "Empty heading")
+            return
+
         if entering:
             style.push(fontname=font.HELVETICA, fontsize=headingfontSizes[node.level])
+            lineheight = style.currentStyle().lineheight
             if self.insertPoint.y > margin + lineheight:
                 self.cr("H+")
             if node.level == 1:
-                properties.heading = node.first_child.literal
+                properties.setSection(node.first_child.literal)
         else:
             self.toc.append(
                 [
@@ -330,6 +342,7 @@ class PdfRenderer:
             )
             self.cr("H-")
             style.pop()
+            lineheight = style.currentStyle().lineheight
 
     def code(self, node, entering):
         style.push(fontname=font.COURIER)
@@ -426,6 +439,8 @@ class PdfRenderer:
 
     def cr(self, note):
         # self.currentPage.insertText(self.insertPoint, note, fontsize=3)
+        lineheight = style.currentStyle().lineheight
+
         self.insertPoint.x = margin + self.indent
         self.insertPoint.y += lineheight
         if self.insertPoint.y > height - margin:

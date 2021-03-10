@@ -26,6 +26,8 @@ class Style:
             else:
                 raise Exception("not valid Style attribute")
 
+        self.lineheight = self.fontsize * 1.2
+
 
 def push(**kwargs):
     if len(_styleList):

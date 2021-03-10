@@ -16,6 +16,7 @@ import glob
 
 from mdpdf.converter import Converter
 from mdpdf.headfoot import Header, Footer
+from mdpdf.properties import setTitle, setSubject, setAuthor, setKeywords
 from mdpdf import log
 
 # TODO: consider pip install click-config-file
@@ -25,17 +26,24 @@ from mdpdf import log
 @click.option(
     "--output", "-o", metavar="FILE", required=True, help="Destination for file output."
 )
-@click.option(
-    "--header",
-    "-h",
-    metavar="<template>",
-    help="""Sets the header template.
-""",
-)
+@click.option("--header", "-h", metavar="<template>", help="Sets the header template.")
 @click.option("--footer", "-f", metavar="<template>", help="Footer template.")
+@click.option("--title", "-t", default="", help="title goes here")
+@click.option("--subject", "-s", default="", help="subject here")
+@click.option("--author", "-a", default="", help="author here")
+@click.option("--keywords", "-k", default="", help="keywords here")
 @click.version_option()
 @click.argument("inputs", nargs=-1)
-def cli(output: str, header: str, footer: str, inputs):
+def cli(
+    output: str,
+    header: str,
+    footer: str,
+    title: str,
+    subject: str,
+    author: str,
+    keywords: str,
+    inputs,
+):
     """Convert Markdown to PDF.
 
     \b
@@ -52,6 +60,7 @@ def cli(output: str, header: str, footer: str, inputs):
       - {page} current page number
       - {header} current top-level body text heading
       - {date} current date"""
+
     ctx = click.get_current_context()
     if not output:
         ctx.fail("No output specified.")
@@ -63,6 +72,18 @@ def cli(output: str, header: str, footer: str, inputs):
             Footer.setFmt(footer)
     except Exception as e:
         ctx.fail(f"{e} in header/footer template.")
+
+    if title:
+        setTitle(title)
+
+    if author:
+        setAuthor(author)
+
+    if subject:
+        setSubject(subject)
+
+    if keywords:
+        setKeywords(keywords)
 
     if inputs:
         log.init()

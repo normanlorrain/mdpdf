@@ -35,6 +35,10 @@ There are several projects that can be considered if you need something with mor
 -  `-o, --output FILE       ` Destination for file output.  [required]
 -  `-h, --header <template> ` Sets the header template.
 -  `-f, --footer <template> ` Footer template.
+-  `-s, --subject TEXT      ` subject here
+-  `-a, --author TEXT       ` author here
+-  `-k, --keywords TEXT     ` keywords here
+-  `-p, --paper [letter|A4] ` paper size
 -  `--version               ` Show the version and exit.
 -  `--help                  ` Show this message and exit.
 

@@ -35,13 +35,13 @@ There are several projects that can be considered if you need something with mor
 -  `-o, --output FILE       ` Destination for file output.  [required]
 -  `-h, --header <template> ` Sets the header template.
 -  `-f, --footer <template> ` Footer template.
--  `-s, --subject TEXT      ` subject here
--  `-a, --author TEXT       ` author here
--  `-k, --keywords TEXT     ` keywords here
--  `-p, --paper [letter|A4] ` paper size
+-  `-t, --title TEXT        ` PDF title.
+-  `-s, --subject TEXT      ` PDF subject.
+-  `-a, --author TEXT       ` PDF author.
+-  `-k, --keywords TEXT     ` PDF keywords.
+-  `-p, --paper [letter|A4] ` Paper size (default letter).
 -  `--version               ` Show the version and exit.
 -  `--help                  ` Show this message and exit.
-
 
 ### Templates:
 
@@ -61,4 +61,4 @@ Example:
 
     $ mdpdf -o article.pdf article.md
 
-    $ mdpdf -o article.pdf --footer "{date},{heading},{page} article.md
+    $ mdpdf -o article.pdf --footer "{date},{heading},{page}" article.md

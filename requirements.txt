@@ -4,8 +4,7 @@
 # click>=7.0,<8
 
 # Developer requirements
-setuptools
-wheel
+build
 twine
 flake8
 black

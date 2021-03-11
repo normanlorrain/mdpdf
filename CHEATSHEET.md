@@ -11,17 +11,15 @@ Instead of Makefile, which is problematic for Windows, and has issues with virtu
 
 
 ## Packaging 
-	python setup.py sdist bdist_wheel
+	python -m build
 	twine check dist/* 
 
 ### test.pypi
+	twine upload --repository testpypi dist/*
+	python -m pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple your-package
 
-	twine upload --repository-url https://test.pypi.org/legacy/ dist/*
-
-	pip install --index-url https://test.pypi.org/simple/ --no-deps mdpdf
-
-
-	# if that works, then upload to real pypi
+### pypi for real
+	# if above tests work, then upload to real pypi
 	twine upload dist/*
 	
 ## freeze
@@ -29,6 +27,5 @@ Instead of Makefile, which is problematic for Windows, and has issues with virtu
     pip freeze > requirements.txt
 
 ## lint
-
 	pylint mdpdf
 

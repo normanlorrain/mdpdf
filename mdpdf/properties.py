@@ -20,7 +20,7 @@ document = {
 # These properties are used for the header and footer
 # these are available on the command-line switch --header and --footer
 page = 1
-header = "some heading"
+heading = "some heading"
 date = datetime.datetime.now().date()
 
 paperSize = "letter"
@@ -32,8 +32,8 @@ def setPaperSize(text):
 
 
 def setSection(text):
-    global header
-    header = text
+    global heading
+    heading = text
 
 
 def setTitle(text):

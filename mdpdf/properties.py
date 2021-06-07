@@ -1,8 +1,6 @@
 import fitz
 import datetime
 
-from fitz.fitz import PaperSize
-
 # This dict is specific to pyMuPDF.
 # Keys can only be : format, encryption, title, author, subject, keywords, creator, producer, creationDate, modDate
 

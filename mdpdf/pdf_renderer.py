@@ -40,7 +40,7 @@ class PdfRenderer:
         self.currentPage = None
 
         global width, height
-        width, height = fitz.PaperSize(properties.paperSize)  # choose paper format
+        width, height = fitz.paper_size(properties.paperSize)  # choose paper format
 
     def __del__(self):
 
@@ -98,7 +98,7 @@ class PdfRenderer:
         sty = style.currentStyle()
         fontName = sty.font.name
         fontSize = sty.fontsize
-        lineWidth = fitz.getTextlength(line, fontName, fontSize)
+        lineWidth = fitz.get_text_length(line, fontName, fontSize)
         budget = width - margin - self.indent - self.insertPoint.x
         if lineWidth < budget:
             self.printSegment(line)
@@ -112,7 +112,7 @@ class PdfRenderer:
                     self.printSegment(suffix)
                     break
                 prefix = line[:index]
-                prefixWidth = fitz.getTextlength(
+                prefixWidth = fitz.get_text_length(
                     prefix, fontname=fontName, fontsize=fontSize
                 )
                 if prefixWidth > budget:  # Still too large.  Chop again.
@@ -131,14 +131,14 @@ class PdfRenderer:
         sty = style.currentStyle()
         fontName = sty.font.name
         fontSize = sty.fontsize
-        lineWidth = fitz.getTextlength(" ", fontname=fontName, fontsize=fontSize)
+        lineWidth = fitz.get_text_length(" ", fontname=fontName, fontsize=fontSize)
         budget = width - margin - self.insertPoint.x
         if lineWidth < budget:
             self.printSegment(" ")
         else:
             pass  # We're about to to a hard break anyway.
         # self.currentPage.insertText(self.insertPoint, " ", fontSize=fontSize)
-        # self.insertPoint.x += fitz.getTextlength(" ", fontSize=fontSize)
+        # self.insertPoint.x += fitz.get_text_length(" ", fontSize=fontSize)
 
     def linebreak(self, node=None, entering=None):
         self.cr("linebreak")
@@ -459,7 +459,7 @@ class PdfRenderer:
         sty = style.currentStyle()
         fontName = sty.font.name
         fontSize = sty.fontsize
-        lineWidth = fitz.getTextlength(line, fontname=fontName, fontsize=fontSize)
+        lineWidth = fitz.get_text_length(line, fontname=fontName, fontsize=fontSize)
 
         # self.currentPage.insertText(
         #     self.insertPoint,
@@ -546,7 +546,7 @@ class PdfRenderer:
 
     def printCentre(self, line):
         sty = style.currentStyle()
-        lineWidth = fitz.getTextlength(
+        lineWidth = fitz.get_text_length(
             line, fontname=sty.font.name, fontsize=sty.fontsize
         )
         self.insertPoint.x = width / 2 - lineWidth / 2
@@ -556,7 +556,7 @@ class PdfRenderer:
 
     def printRight(self, line):
         sty = style.currentStyle()
-        lineWidth = fitz.getTextlength(
+        lineWidth = fitz.get_text_length(
             line, fontname=sty.font.name, fontsize=sty.fontsize
         )
         self.insertPoint.x = width - margin - lineWidth

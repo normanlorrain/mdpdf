@@ -93,6 +93,10 @@ that last line which continues item 3 above).
 
 Here's a link to [a website](http://foo.bar), to a [local doc](quick.md). 
 
+Here's a link to [a fragment](#Attachments) within this doc.  (TODO)
+
+Here's a link to [a fragment](https://spec.commonmark.org/0.29/#introduction) on another page.
+
 A horizontal rule follows.
 
 ***
@@ -102,7 +106,7 @@ and images can be specified like so:
 ![Example image {width=10%}](images/example-image.jpg "An exemplary image")
 
 
-And note that you can backslash-escape any punctuation characters
+And note that you can backslash-escape any punctuation character
 which you wish to be displayed literally, ex.: \`foo\`, \*bar\*, etc.
 
 

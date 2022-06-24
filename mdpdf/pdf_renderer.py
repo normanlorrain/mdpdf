@@ -48,16 +48,16 @@ class PdfRenderer:
         # so check first.
         if hasattr(self, "doc"):
             # If still None, we haven't processed an ast
-            if self.doc.pageCount:
+            if self.doc.page_count:
                 for i in range(len(self.toc)):
                     log.debug(f"{i}, {self.toc[i]}")
                 try:
-                    self.doc.setToC(self.toc)
+                    self.doc.set_toc(self.toc)
                 except ValueError as e:
                     log.exception("Bad heading level.  More information:")
                     lastspace = str(e).rfind(" ")
                     log.info(self.toc[int(str(e)[lastspace:])])
-                self.doc.setMetadata(properties.document)
+                self.doc.set_metadata(properties.document)
                 try:
                     self.doc.save(str(self.pdf), garbage=4, deflate=True)
                 except RuntimeError as e:
@@ -161,7 +161,7 @@ class PdfRenderer:
                         "uri": self.linkDestination,
                         "xref": None,
                     }
-                    self.currentPage.insertLink(newLink)
+                    self.currentPage.insert_link(newLink)
                 self.linkRects.clear()
             else:
                 filename = Path(self.indir) / self.linkDestination
@@ -171,7 +171,7 @@ class PdfRenderer:
                     pin = fitz.Point(
                         self.insertPoint.x, self.insertPoint.y - lineheight
                     )
-                    self.currentPage.addFileAnnot(
+                    self.currentPage.add_file_annot(
                         pin,
                         buffer=open(filename, mode="rb").read(),
                         # This goes in Description  TODO: file issue with PyMuPDF
@@ -281,7 +281,7 @@ class PdfRenderer:
                         self.insertPoint.y + rectHeight,
                     )
 
-                self.currentPage.insertImage(
+                self.currentPage.insert_image(
                     rect, filename=str(imagefile), keep_proportion=True
                 )
                 self.insertPoint.y += rectHeight
@@ -338,7 +338,7 @@ class PdfRenderer:
                 [
                     node.level,
                     node.first_child.literal,
-                    self.doc.pageCount,
+                    self.doc.page_count,
                     self.insertPoint.y - headingfontSizes[node.level],
                 ]
             )
@@ -373,7 +373,7 @@ class PdfRenderer:
         pntFrom = fitz.Point(self.insertPoint.x, self.insertPoint.y - lineheight / 2)
         pntTo = fitz.Point(width - margin, pntFrom.y)
         shape = self.currentPage.newShape()
-        shape.drawLine(pntFrom, pntTo)
+        shape.draw_line(pntFrom, pntTo)
         shape.finish()
         shape.commit()
         self.cr("")
@@ -468,7 +468,7 @@ class PdfRenderer:
         #     fontsize=fontSize * 2,
         # )
         log.debug(f"printSegment: {line}")
-        self.currentPage.insertText(
+        self.currentPage.insert_text(
             self.insertPoint, line, fontname=fontName, fontsize=fontSize
         )
         if self.linkDestination:
@@ -489,20 +489,20 @@ class PdfRenderer:
             self.linkDestination = None
             self.linkRects = []
 
-            self.currentPage = self.doc.newPage(-1, width, height)
+            self.currentPage = self.doc.new_page(-1, width, height)
             style.push(fontname=font.TIMES, fontsize=10, indent=0)
         else:
             self.finishPage()
             style.pop()  # We should be done anyway
 
     def finishPage(self):
-        link = self.currentPage.firstLink
+        link = self.currentPage.first_link
         while link:
             link.setBorder({"width": 0.5, "style": "U"})
             link = link.next
 
         # Generate Header and Footer
-        properties.page = self.doc.pageCount
+        properties.page = self.doc.page_count
 
         style.push(fontname=font.HELVETICA, fontsize=8, indent=0)
         if Header.enabled:
@@ -516,7 +516,7 @@ class PdfRenderer:
 
             pntFrom = fitz.Point(margin, 0.75 * margin)
             pntTo = fitz.Point(width - margin, 0.75 * margin)
-            self.currentPage.drawLine(pntFrom, pntTo, width=1)
+            self.currentPage.draw_line(pntFrom, pntTo, width=1)
 
         if Footer.enabled:
             self.insertPoint.y = height - (margin / 2) + lineheight / 2
@@ -529,18 +529,18 @@ class PdfRenderer:
 
             pntFrom = fitz.Point(margin, height - (0.75 * margin))
             pntTo = fitz.Point(width - margin, height - (0.75 * margin))
-            self.currentPage.drawLine(pntFrom, pntTo, width=1)
+            self.currentPage.draw_line(pntFrom, pntTo, width=1)
         style.pop()
 
     def newPage(self):
         self.finishPage()
-        self.currentPage = self.doc.newPage(-1, width, height)
+        self.currentPage = self.doc.new_page(-1, width, height)
         self.insertPoint = fitz.Point(margin + self.indent, margin + lineheight)
 
     def printLeft(self, line):
         sty = style.currentStyle()
         self.insertPoint.x = margin
-        self.currentPage.insertText(
+        self.currentPage.insert_text(
             self.insertPoint, line, fontname=sty.font.name, fontsize=sty.fontsize
         )
 
@@ -550,7 +550,7 @@ class PdfRenderer:
             line, fontname=sty.font.name, fontsize=sty.fontsize
         )
         self.insertPoint.x = width / 2 - lineWidth / 2
-        self.currentPage.insertText(
+        self.currentPage.insert_text(
             self.insertPoint, line, fontname=sty.font.name, fontsize=sty.fontsize
         )
 
@@ -560,6 +560,6 @@ class PdfRenderer:
             line, fontname=sty.font.name, fontsize=sty.fontsize
         )
         self.insertPoint.x = width - margin - lineWidth
-        self.currentPage.insertText(
+        self.currentPage.insert_text(
             self.insertPoint, line, fontname=sty.font.name, fontsize=sty.fontsize
         )

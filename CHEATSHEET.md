@@ -9,6 +9,11 @@ Instead of Makefile, which is problematic for Windows, and has issues with virtu
 	pip install -r requirements.txt
 	pip install --editable .
 
+## Testing
+	pytest
+### verbose tests (stdout/stderr)	
+	pytest -s 
+
 
 ## Packaging 
 	python -m build

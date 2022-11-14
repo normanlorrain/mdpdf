@@ -372,7 +372,7 @@ class PdfRenderer:
         # attrs = self.attrs(node)
         pntFrom = fitz.Point(self.insertPoint.x, self.insertPoint.y - lineheight / 2)
         pntTo = fitz.Point(width - margin, pntFrom.y)
-        shape = self.currentPage.newShape()
+        shape = self.currentPage.new_shape()
         shape.draw_line(pntFrom, pntTo)
         shape.finish()
         shape.commit()

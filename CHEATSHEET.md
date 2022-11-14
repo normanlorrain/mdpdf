@@ -1,6 +1,6 @@
 # Cheatsheet 
 
-Instead of Makefile, which is problematic for Windows, and has issues with virtual environements (activating/deactivating, etc).
+Instead of Makefile, which is problematic for Windows, and has issues with virtual environments (activating/deactivating, etc).
 
 ## Development bootstrap
 	python -m venv .venv

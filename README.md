@@ -23,7 +23,12 @@ There are several projects that can be considered if you need something with mor
 * [pandoc](https://pandoc.org/) + [latex](https://www.latex-project.org/)
 * [rst2pdf](https://github.com/rst2pdf/rst2pdf)
 * [rinohtype](https://github.com/brechtm/rinohtype)
+* [weasyprint](https://weasyprint.org/)
 
+
+### To Investigate
+* [pyfpdf](https://github.com/reingart/pyfpdf/blob/master/docs/FAQ.md)
+* 
 ## Installation
 
     $ pip install mdpdf

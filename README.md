@@ -20,6 +20,7 @@ Python command line application to convert Markdown to PDF.
 
 ## Alternatives
 There are several projects that can be considered if you need something with more features.  Of note: 
+* [pandoc](https://pandoc.org/) + [Typst](https://github.com/typst/typst)
 * [pandoc](https://pandoc.org/) + [latex](https://www.latex-project.org/)
 * [rst2pdf](https://github.com/rst2pdf/rst2pdf)
 * [rinohtype](https://github.com/brechtm/rinohtype)

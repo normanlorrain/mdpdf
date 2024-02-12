@@ -6,7 +6,6 @@
 # Developer requirements
 build
 twine
-flake8
 black
 pytest
 

@@ -4,14 +4,14 @@
 
         {
             "name": "Python: Current File",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal"
         },
         {
             "name": "ElmTree Clinic Databook",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/mdpdf/cli.py",
             "console": "integratedTerminal",
@@ -29,13 +29,13 @@
         },
         {
             "name": "Specification test",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/mdpdf/cli.py",
             "console": "integratedTerminal",
             "args": [
                 "--header",
-                ",Markdown Specification,"
+                ",Markdown Specification,",
                 "-o",
                 "${workspaceFolder}/tests/output/spec.txt.pdf",
                 "${workspaceFolder}/tests/input/spec.txt.md"
@@ -43,7 +43,7 @@
         },
         {
             "name": "Syntax test",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/mdpdf/cli.py",
             "console": "integratedTerminal",
@@ -51,7 +51,7 @@
                 "--author",
                 "Jane Doe",
                 "--header",
-                ",Markdown Specification,"
+                ",Markdown Specification,",
                 "-o",
                 "${workspaceFolder}/tests/output/syntax.pdf",
                 "${workspaceFolder}/tests/input/syntax.md"
@@ -59,7 +59,7 @@
         },
         {
             "name": "Quick test",
-            "type": "python",
+            "type": "debugpy",
             "justMyCode": false,
             "request": "launch",
             "program": "${workspaceFolder}/mdpdf/cli.py",
@@ -82,7 +82,7 @@
         },
         {
             "name": "Lorem test",
-            "type": "python",
+            "type": "debugpy",
             "justMyCode": false,
             "request": "launch",
             "program": "${workspaceFolder}/mdpdf/cli.py",

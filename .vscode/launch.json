@@ -1,0 +1,107 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "ElmTree Clinic Databook",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/mdpdf/cli.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--subject",
+                "IT configuration and information",
+                "--header",
+                ",Databook,",
+                "--footer",
+                "{date},{header},{page}",
+                "-o",
+                "${workspaceFolder}/../ElmTree-databook.pdf",
+                "${workspaceFolder}/../ElmTree-databook/*/*.md"
+            ]
+        },
+        {
+            "name": "Specification test",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/mdpdf/cli.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--header",
+                ",Markdown Specification,"
+                "-o",
+                "${workspaceFolder}/tests/output/spec.txt.pdf",
+                "${workspaceFolder}/tests/input/spec.txt.md"
+            ]
+        },
+        {
+            "name": "Syntax test",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/mdpdf/cli.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--author",
+                "Jane Doe",
+                "--header",
+                ",Markdown Specification,"
+                "-o",
+                "${workspaceFolder}/tests/output/syntax.pdf",
+                "${workspaceFolder}/tests/input/syntax.md"
+            ]
+        },
+        {
+            "name": "Quick test",
+            "type": "python",
+            "justMyCode": false,
+            "request": "launch",
+            "program": "${workspaceFolder}/mdpdf/cli.py",
+            "console": "integratedTerminal",
+            "args": [
+                "-t",
+                "Quick Test",
+                "-s",
+                "A simple test",
+                "-a",
+                "Unknown Author",
+                "-k",
+                "mdpdf, markdown",
+                // "-p",
+                // "letter",
+                "-o",
+                "${workspaceFolder}/tests/output/quick.pdf",
+                "${workspaceFolder}/tests/input/quick.md"
+            ]
+        },
+        {
+            "name": "Lorem test",
+            "type": "python",
+            "justMyCode": false,
+            "request": "launch",
+            "program": "${workspaceFolder}/mdpdf/cli.py",
+            "console": "integratedTerminal",
+            "args": [
+                "-t",
+                "Lorem Test",
+                "-s",
+                "A simple test",
+                "-a",
+                "Unknown Author",
+                "-k",
+                "mdpdf, markdown",
+                // "-p",
+                // "letter",
+                "-o",
+                "${workspaceFolder}/tests/output/lorem.pdf",
+                "${workspaceFolder}/tests/input/lorem.md"
+            ]
+        },
+    ]
+}

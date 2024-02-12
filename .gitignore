@@ -105,7 +105,5 @@ ENV/
 # JetBrains
 .idea
 
-# VSCode
-.vscode
 
 tests/output/
